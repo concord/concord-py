@@ -1,3 +1,3 @@
 Installation
 -------------
- pip install git+https://github.com/concord/concord-py#concord-py
+ pip install git+https://github.com/concord/concord-py#egg=concord-py --upgrade

@@ -1,37 +1,35 @@
 """Computation class for Concord
 .. module:: Computation
     :synopsis: Computation class and helper function
-.. moduleauthor:: Cole Brown <cole@concord.io>
 """
 
-from thrift import Thrift
-from thrift.transport import (
-    TSocket, TTransport
-    )
+
 
 import sys
 import os
 import types
-
-from thrift.server import TServer
+from thrift import Thrift
+from thrift.transport import (
+    TSocket, TTransport
+)
+from thrift.server import (
+    TServer, TNonblockingServer
+)
 from thrift.protocol import TBinaryProtocol
-from thrift.server.TCppServer import TCppServer
-
-from .internal.thrift import (
+from concord.internal.thrift import (
     ComputationService,
     BoltProxyService
-    )
-
-from .internal.thrift.ttypes import (
+)
+from concord.internal.thrift.ttypes import (
     Record,
     ComputationTx,
     ComputationMetadata,
     Endpoint,
     StreamMetadata,
     StreamGrouping
-    )
+)
 
-from .internal.thrift.constants import (
+from concord.internal.thrift.constants import (
     kConcordEnvKeyClientListenAddr,
     kConcordEnvKeyClientProxyAddr
 )
@@ -40,7 +38,7 @@ class Metadata:
     """High-level wrapper for `ComputationMetadata`
     """
 
-    def __init__(self, name=None, istreams=None, ostreams=None):
+    def __init__(self, name=None, istreams=[], ostreams=[]):
         """Create a new Metadata object
 
         :param name: The globally unique identifier of the computation.
@@ -55,6 +53,8 @@ class Metadata:
         self.name = name
         self.istreams = istreams
         self.ostreams = ostreams
+        if len(self.istreams) == 0 and len(self.ostreams) == 0:
+            raise Exception("Both input and output streams are empty")
 
 def new_computation_context():
     """Creates a context object wrapping a transaction.
@@ -237,7 +237,17 @@ def serve_computation(handler):
     comp.set_proxy_address(proxy_host, proxy_port)
 
     processor = ComputationService.Processor(comp)
-    server = TCppServer(processor)
-    server.setPort(listen_port)
-    server.serve()
+    transport = TSocket.TServerSocket(port=listen_port)
+    pfactory = TBinaryProtocol.TBinaryProtocolFactory()
 
+    # TODO(agallego) - enable TNonblockingServer written by evernote folks
+    # tested to be faster than any other option for python
+    tfactory = TTransport.TBufferedTransportFactory()
+    server = TServer.TSimpleServer(processor, transport, tfactory, pfactory)
+    # server = TNonblockingServer.TNonblockingServer(processor,
+    #                                                transport,
+    #                                                inputProtocolFactory=pfactory)
+    # You could do one of these for a multithreaded server
+    #server = TServer.TThreadedServer(processor, transport, tfactory, pfactory)
+    #server = TServer.TThreadPoolServer(processor, transport, tfactory, pfactory)
+    server.serve()
