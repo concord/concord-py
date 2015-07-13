@@ -1,0 +1,6 @@
+Thrift==0.1
+Twisted==14.0.2
+argparse==1.2.1
+six==1.9.0
+wsgiref==0.1.2
+zope.interface==4.1.2
