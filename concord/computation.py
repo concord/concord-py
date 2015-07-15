@@ -242,12 +242,13 @@ def serve_computation(handler):
 
     # TODO(agallego) - enable TNonblockingServer written by evernote folks
     # tested to be faster than any other option for python
-    tfactory = TTransport.TBufferedTransportFactory()
-    #server = TServer.TSimpleServer(processor, transport, tfactory, pfactory)
+    # tfactory = TTransport.TBufferedTransportFactory()
+    tfactory = TTransport.TFramedTransportFactory()
+    server = TServer.TSimpleServer(processor, transport, tfactory, pfactory)
     # server = TNonblockingServer.TNonblockingServer(processor,
     #                                                transport,
     #                                                inputProtocolFactory=pfactory)
     # You could do one of these for a multithreaded server
-    server = TServer.TThreadedServer(processor, transport, tfactory, pfactory)
+    # server = TServer.TThreadedServer(processor, transport, tfactory, pfactory)
     #server = TServer.TThreadPoolServer(processor, transport, tfactory, pfactory)
     server.serve()
