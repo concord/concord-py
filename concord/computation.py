@@ -135,7 +135,7 @@ class Computation:
         """
         raise Exception('metadata not implemented')
 
-class ComputationService:
+class ComputationServiceWrapper(ComputationService.Iface):
     def __init__(self, handler):
         self.handler = handler
         self.proxy_client = None
@@ -227,7 +227,7 @@ def serve_computation(handler):
         host, port = address.split(':')
         return (host, int(port))
 
-    comp = ComputationService(handler)
+    comp = ComputationServiceWrapper(handler)
 
     _, listen_port = address_str(
         os.environ[kConcordEnvKeyClientListenAddr])
@@ -236,7 +236,7 @@ def serve_computation(handler):
 
     comp.set_proxy_address(proxy_host, proxy_port)
 
-    processor = ComputationService.Processor(comp)
+    processor = concord.internal.thrift.ComputationService.Processor(comp)
     transport = TSocket.TServerSocket(port=listen_port)
     pfactory = TBinaryProtocol.TBinaryProtocolFactory()
 
