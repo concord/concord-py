@@ -144,17 +144,29 @@ class ComputationServiceWrapper(ComputationService.Iface):
 
     def init(self):
         ctx, transaction = new_computation_context()
-        self.handler.init(ctx)
+        try:
+            self.handler.init(ctx)
+        except Exception as e:
+            print "Exception in client init: ", e
+            raise e
         return transaction
 
     def boltProcessRecord(self, record):
         ctx, transaction = new_computation_context()
-        self.handler.process_record(ctx, record)
+        try:
+            self.handler.process_record(ctx, record)
+        except Exception as e:
+            print "Exception in process_record: ", e
+            raise e
         return transaction
 
     def boltProcessTimer(self, key, time):
         ctx, transaction = new_computation_context()
-        self.handler.process_timer(ctx, key, time)
+        try:
+            self.handler.process_timer(ctx, key, time)
+        except Exception as e:
+            print "Exception in process_timer: ", e
+            raise e
         return transaction
 
     def boltMetadata(self):
@@ -170,7 +182,12 @@ class ComputationServiceWrapper(ComputationService.Iface):
                 sm.grouping = defaultGrouping
             return sm
 
-        md = self.handler.metadata()
+        try:
+            md = self.handler.metadata()
+        except Exception as e:
+            print "Exception in metadata: ", e
+            raise e
+
         metadata = ComputationMetadata()
         metadata.name = md.name
         metadata.istreams = list(map(enrich_stream, md.istreams))
