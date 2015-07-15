@@ -33,6 +33,9 @@ from concord.internal.thrift.constants import (
     kConcordEnvKeyClientListenAddr,
     kConcordEnvKeyClientProxyAddr
 )
+import logging
+
+logging.basicConfig()
 
 class Metadata:
     """High-level wrapper for `ComputationMetadata`
