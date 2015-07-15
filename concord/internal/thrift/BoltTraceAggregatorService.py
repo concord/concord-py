@@ -295,11 +295,11 @@ class submitSpans_args:
       if fid == 1:
         if ftype == TType.LIST:
           self.span = []
-          (_etype105, _size102) = iprot.readListBegin()
-          for _i106 in xrange(_size102):
-            _elem107 = Span()
-            _elem107.read(iprot)
-            self.span.append(_elem107)
+          (_etype114, _size111) = iprot.readListBegin()
+          for _i115 in xrange(_size111):
+            _elem116 = Span()
+            _elem116.read(iprot)
+            self.span.append(_elem116)
           iprot.readListEnd()
         else:
           iprot.skip(ftype)
@@ -316,8 +316,8 @@ class submitSpans_args:
     if self.span is not None:
       oprot.writeFieldBegin('span', TType.LIST, 1)
       oprot.writeListBegin(TType.STRUCT, len(self.span))
-      for iter108 in self.span:
-        iter108.write(oprot)
+      for iter117 in self.span:
+        iter117.write(oprot)
       oprot.writeListEnd()
       oprot.writeFieldEnd()
     oprot.writeFieldStop()
@@ -502,11 +502,11 @@ class getTrace_result:
       if fid == 0:
         if ftype == TType.LIST:
           self.success = []
-          (_etype112, _size109) = iprot.readListBegin()
-          for _i113 in xrange(_size109):
-            _elem114 = Span()
-            _elem114.read(iprot)
-            self.success.append(_elem114)
+          (_etype121, _size118) = iprot.readListBegin()
+          for _i122 in xrange(_size118):
+            _elem123 = Span()
+            _elem123.read(iprot)
+            self.success.append(_elem123)
           iprot.readListEnd()
         else:
           iprot.skip(ftype)
@@ -529,8 +529,8 @@ class getTrace_result:
     if self.success is not None:
       oprot.writeFieldBegin('success', TType.LIST, 0)
       oprot.writeListBegin(TType.STRUCT, len(self.success))
-      for iter115 in self.success:
-        iter115.write(oprot)
+      for iter124 in self.success:
+        iter124.write(oprot)
       oprot.writeListEnd()
       oprot.writeFieldEnd()
     if self.e is not None:
@@ -667,10 +667,10 @@ class getTraceIds_result:
       if fid == 0:
         if ftype == TType.LIST:
           self.success = []
-          (_etype119, _size116) = iprot.readListBegin()
-          for _i120 in xrange(_size116):
-            _elem121 = iprot.readI64();
-            self.success.append(_elem121)
+          (_etype128, _size125) = iprot.readListBegin()
+          for _i129 in xrange(_size125):
+            _elem130 = iprot.readI64();
+            self.success.append(_elem130)
           iprot.readListEnd()
         else:
           iprot.skip(ftype)
@@ -693,8 +693,8 @@ class getTraceIds_result:
     if self.success is not None:
       oprot.writeFieldBegin('success', TType.LIST, 0)
       oprot.writeListBegin(TType.I64, len(self.success))
-      for iter122 in self.success:
-        oprot.writeI64(iter122)
+      for iter131 in self.success:
+        oprot.writeI64(iter131)
       oprot.writeListEnd()
       oprot.writeFieldEnd()
     if self.e is not None:
@@ -751,10 +751,10 @@ class consolidateTraceIds_args:
       if fid == 1:
         if ftype == TType.LIST:
           self.traceIds = []
-          (_etype126, _size123) = iprot.readListBegin()
-          for _i127 in xrange(_size123):
-            _elem128 = iprot.readI64();
-            self.traceIds.append(_elem128)
+          (_etype135, _size132) = iprot.readListBegin()
+          for _i136 in xrange(_size132):
+            _elem137 = iprot.readI64();
+            self.traceIds.append(_elem137)
           iprot.readListEnd()
         else:
           iprot.skip(ftype)
@@ -771,8 +771,8 @@ class consolidateTraceIds_args:
     if self.traceIds is not None:
       oprot.writeFieldBegin('traceIds', TType.LIST, 1)
       oprot.writeListBegin(TType.I64, len(self.traceIds))
-      for iter129 in self.traceIds:
-        oprot.writeI64(iter129)
+      for iter138 in self.traceIds:
+        oprot.writeI64(iter138)
       oprot.writeListEnd()
       oprot.writeFieldEnd()
     oprot.writeFieldStop()
