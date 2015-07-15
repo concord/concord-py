@@ -258,13 +258,7 @@ def serve_computation(handler):
 
     processor = ComputationService.Processor(comp)
     transport = TSocket.TServerSocket(port=listen_port)
-    pfactory = TBinaryProtocol.TBinaryProtocolFactory()
-    tfactory = TTransport.TFramedTransportFactory()
-
-    # server = TServer.TSimpleServer(processor, transport, tfactory, pfactory)
     server = TNonblockingServer.TNonblockingServer(processor, transport)
-    # server = TServer.TThreadedServer(processor, transport, tfactory, pfactory)
-    # server = TServer.TThreadPoolServer(processor, transport, tfactory, pfactory)
     try:
         server.serve()
     except Exception as exception:
