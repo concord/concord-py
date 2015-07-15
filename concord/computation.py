@@ -236,7 +236,7 @@ def serve_computation(handler):
 
     comp.set_proxy_address(proxy_host, proxy_port)
 
-    processor = concord.internal.thrift.ComputationService.Processor(comp)
+    processor = ComputationService.Processor(comp)
     transport = TSocket.TServerSocket(port=listen_port)
     pfactory = TBinaryProtocol.TBinaryProtocolFactory()
 
