@@ -144,7 +144,7 @@ class ComputationServiceWrapper(ComputationService.Iface):
 
     def init(self):
         ctx, transaction = new_computation_context()
-        self.handler.initialize(ctx)
+        self.handler.init(ctx)
         return transaction
 
     def boltProcessRecord(self, record):
@@ -239,16 +239,14 @@ def serve_computation(handler):
     processor = ComputationService.Processor(comp)
     transport = TSocket.TServerSocket(port=listen_port)
     pfactory = TBinaryProtocol.TBinaryProtocolFactory()
-
-    # TODO(agallego) - enable TNonblockingServer written by evernote folks
-    # tested to be faster than any other option for python
-    # tfactory = TTransport.TBufferedTransportFactory()
     tfactory = TTransport.TFramedTransportFactory()
-    server = TServer.TSimpleServer(processor, transport, tfactory, pfactory)
-    # server = TNonblockingServer.TNonblockingServer(processor,
-    #                                                transport,
-    #                                                inputProtocolFactory=pfactory)
-    # You could do one of these for a multithreaded server
+
+    # server = TServer.TSimpleServer(processor, transport, tfactory, pfactory)
+    server = TNonblockingServer.TNonblockingServer(processor, transport)
     # server = TServer.TThreadedServer(processor, transport, tfactory, pfactory)
-    #server = TServer.TThreadPoolServer(processor, transport, tfactory, pfactory)
-    server.serve()
+    # server = TServer.TThreadPoolServer(processor, transport, tfactory, pfactory)
+    try:
+        server.serve()
+    except Exception as exception:
+        print "Exception in python client", exception
+        raise exception
