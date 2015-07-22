@@ -13,7 +13,7 @@ install_reqs = parse_requirements("requirements.txt",
 reqs = [str(ir.req) for ir in install_reqs]
 
 
-setup(version='0.3.1',
+setup(version='0.2.0',
       name='concord-py',
       description='python concord command line tools',
       scripts=[],
