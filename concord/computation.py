@@ -8,6 +8,7 @@
 import sys
 import os
 import types
+import threading
 from thrift import Thrift
 from thrift.transport import (
     TSocket, TTransport
@@ -34,9 +35,13 @@ from concord.internal.thrift.constants import (
     kConcordEnvKeyClientProxyAddr
 )
 import logging
+import logging.handlers
 
 logging.basicConfig()
-
+concord_logging_handle = logging.handlers.RotatingFileHandler("concord_py.log")
+concord_logger = logging.getLogger(__name__)
+concord_logger.setLevel(logging.DEBUG)
+concord_logger.addHandler(concord_logging_handle)
 class Metadata:
     """High-level wrapper for `ComputationMetadata`
     """
@@ -150,7 +155,8 @@ class ComputationServiceWrapper(ComputationService.Iface):
         try:
             self.handler.init(ctx)
         except Exception as e:
-            print "Exception in client init: ", e
+            concord_logger.error("Exception in client init")
+            concord_logger.exception(e)
             raise e
         return transaction
 
@@ -159,7 +165,8 @@ class ComputationServiceWrapper(ComputationService.Iface):
         try:
             self.handler.process_record(ctx, record)
         except Exception as e:
-            print "Exception in process_record: ", e
+            concord_logger.error("Exception in process_record")
+            concord_logger.exception(e)
             raise e
         return transaction
 
@@ -168,7 +175,8 @@ class ComputationServiceWrapper(ComputationService.Iface):
         try:
             self.handler.process_timer(ctx, key, time)
         except Exception as e:
-            print "Exception in process_timer: ", e
+            concord_logger.error("Exception in process_timer")
+            concord_logger.exception(e)
             raise e
         return transaction
 
@@ -213,6 +221,7 @@ class ComputationServiceWrapper(ComputationService.Iface):
     def new_proxy_client(self):
         host, port = self.proxy_address
         socket = TSocket.TSocket(host, port)
+        socket.setTimeout(0)
         transport = TTransport.TFramedTransport(socket)
         protocol = TBinaryProtocol.TBinaryProtocol(transport)
         client = BoltProxyService.Client(protocol)
@@ -243,6 +252,8 @@ def serve_computation(handler):
     :param handler: The user computation.
     :type handler: Computation.
     """
+    concord_logger.info("About to serve computation and service")
+
     def address_str(address):
         host, port = address.split(':')
         return (host, int(port))
@@ -254,13 +265,24 @@ def serve_computation(handler):
     proxy_host, proxy_port = address_str(
         os.environ[kConcordEnvKeyClientProxyAddr])
 
-    comp.set_proxy_address(proxy_host, proxy_port)
-
     processor = ComputationService.Processor(comp)
     transport = TSocket.TServerSocket(port=listen_port)
     server = TNonblockingServer.TNonblockingServer(processor, transport)
-    try:
+
+    def thrift_service():
+        concord_logger.info("Starting python service port: %d", listen_port)
         server.serve()
+        concord_logger.error("Exciting service")
+
+    try:
+        d = threading.Thread(name='`proxy-registration`', target=thrift_service)
+        d.start()
+        concord_logger.info("registering with framework at: %s:%d",
+                            proxy_host, proxy_port)
+        comp.set_proxy_address(proxy_host, proxy_port)
+        d.join()
     except Exception as exception:
-        print "Exception in python client", exception
+        concord_logger.fatal(exception)
+        concord_logger.error("Exception in python client")
+        server.stop()
         raise exception
