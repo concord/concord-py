@@ -221,8 +221,6 @@ class ComputationServiceWrapper(ComputationService.Iface):
     def new_proxy_client(self):
         host, port = self.proxy_address
         socket = TSocket.TSocket(host, port)
-        max_socket_timeout = 1000 * 60 * 5 # 5mins
-        socket.setTimeout(max_socket_timeout)
         transport = TTransport.TFramedTransport(socket)
         protocol = TBinaryProtocol.TBinaryProtocol(transport)
         client = BoltProxyService.Client(protocol)
