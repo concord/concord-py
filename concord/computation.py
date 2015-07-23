@@ -274,12 +274,10 @@ def serve_computation(handler):
         concord_logger.error("Exciting service")
 
     try:
-        d = threading.Thread(name='`proxy-registration`', target=thrift_service)
-        d.start()
         concord_logger.info("registering with framework at: %s:%d",
                             proxy_host, proxy_port)
         comp.set_proxy_address(proxy_host, proxy_port)
-        d.join()
+        thrift_service()
     except Exception as exception:
         concord_logger.fatal(exception)
         concord_logger.error("Exception in python client")

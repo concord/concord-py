@@ -27,8 +27,8 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
   print('  bool registerRichStream(RichStream r)')
   print('  bool deregisterRichStream(RichStream r)')
   print('  void dispatchRecords( records)')
-  print('  void registerWithScheduler(ComputationMetadata meta)')
   print('  void updateSchedulerAddress(Endpoint e)')
+  print('  void registerWithScheduler(ComputationMetadata meta)')
   print('  void setState(string key, string value)')
   print('  string getState(string key)')
   print('')
@@ -105,17 +105,17 @@ elif cmd == 'dispatchRecords':
     sys.exit(1)
   pp.pprint(client.dispatchRecords(eval(args[0]),))
 
-elif cmd == 'registerWithScheduler':
-  if len(args) != 1:
-    print('registerWithScheduler requires 1 args')
-    sys.exit(1)
-  pp.pprint(client.registerWithScheduler(eval(args[0]),))
-
 elif cmd == 'updateSchedulerAddress':
   if len(args) != 1:
     print('updateSchedulerAddress requires 1 args')
     sys.exit(1)
   pp.pprint(client.updateSchedulerAddress(eval(args[0]),))
+
+elif cmd == 'registerWithScheduler':
+  if len(args) != 1:
+    print('registerWithScheduler requires 1 args')
+    sys.exit(1)
+  pp.pprint(client.registerWithScheduler(eval(args[0]),))
 
 elif cmd == 'setState':
   if len(args) != 2:

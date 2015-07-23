@@ -40,17 +40,17 @@ class Iface(concord.internal.thrift.MutableEphemeralStateService.Iface):
     """
     pass
 
-  def registerWithScheduler(self, meta):
-    """
-    Parameters:
-     - meta
-    """
-    pass
-
   def updateSchedulerAddress(self, e):
     """
     Parameters:
      - e
+    """
+    pass
+
+  def registerWithScheduler(self, meta):
+    """
+    Parameters:
+     - meta
     """
     pass
 
@@ -156,37 +156,6 @@ class Client(concord.internal.thrift.MutableEphemeralStateService.Client, Iface)
       raise result.e
     return
 
-  def registerWithScheduler(self, meta):
-    """
-    Parameters:
-     - meta
-    """
-    self.send_registerWithScheduler(meta)
-    self.recv_registerWithScheduler()
-
-  def send_registerWithScheduler(self, meta):
-    self._oprot.writeMessageBegin('registerWithScheduler', TMessageType.CALL, self._seqid)
-    args = registerWithScheduler_args()
-    args.meta = meta
-    args.write(self._oprot)
-    self._oprot.writeMessageEnd()
-    self._oprot.trans.flush()
-
-  def recv_registerWithScheduler(self):
-    iprot = self._iprot
-    (fname, mtype, rseqid) = iprot.readMessageBegin()
-    if mtype == TMessageType.EXCEPTION:
-      x = TApplicationException()
-      x.read(iprot)
-      iprot.readMessageEnd()
-      raise x
-    result = registerWithScheduler_result()
-    result.read(iprot)
-    iprot.readMessageEnd()
-    if result.e is not None:
-      raise result.e
-    return
-
   def updateSchedulerAddress(self, e):
     """
     Parameters:
@@ -218,6 +187,20 @@ class Client(concord.internal.thrift.MutableEphemeralStateService.Client, Iface)
       raise result.e
     return
 
+  def registerWithScheduler(self, meta):
+    """
+    Parameters:
+     - meta
+    """
+    self.send_registerWithScheduler(meta)
+
+  def send_registerWithScheduler(self, meta):
+    self._oprot.writeMessageBegin('registerWithScheduler', TMessageType.ONEWAY, self._seqid)
+    args = registerWithScheduler_args()
+    args.meta = meta
+    args.write(self._oprot)
+    self._oprot.writeMessageEnd()
+    self._oprot.trans.flush()
 
 class Processor(concord.internal.thrift.MutableEphemeralStateService.Processor, Iface, TProcessor):
   def __init__(self, handler):
@@ -225,8 +208,8 @@ class Processor(concord.internal.thrift.MutableEphemeralStateService.Processor, 
     self._processMap["registerRichStream"] = Processor.process_registerRichStream
     self._processMap["deregisterRichStream"] = Processor.process_deregisterRichStream
     self._processMap["dispatchRecords"] = Processor.process_dispatchRecords
-    self._processMap["registerWithScheduler"] = Processor.process_registerWithScheduler
     self._processMap["updateSchedulerAddress"] = Processor.process_updateSchedulerAddress
+    self._processMap["registerWithScheduler"] = Processor.process_registerWithScheduler
 
   def process(self, iprot, oprot):
     (name, type, seqid) = iprot.readMessageBegin()
@@ -285,20 +268,6 @@ class Processor(concord.internal.thrift.MutableEphemeralStateService.Processor, 
     oprot.writeMessageEnd()
     oprot.trans.flush()
 
-  def process_registerWithScheduler(self, seqid, iprot, oprot):
-    args = registerWithScheduler_args()
-    args.read(iprot)
-    iprot.readMessageEnd()
-    result = registerWithScheduler_result()
-    try:
-      self._handler.registerWithScheduler(args.meta)
-    except BoltError, e:
-      result.e = e
-    oprot.writeMessageBegin("registerWithScheduler", TMessageType.REPLY, seqid)
-    result.write(oprot)
-    oprot.writeMessageEnd()
-    oprot.trans.flush()
-
   def process_updateSchedulerAddress(self, seqid, iprot, oprot):
     args = updateSchedulerAddress_args()
     args.read(iprot)
@@ -312,6 +281,13 @@ class Processor(concord.internal.thrift.MutableEphemeralStateService.Processor, 
     result.write(oprot)
     oprot.writeMessageEnd()
     oprot.trans.flush()
+
+  def process_registerWithScheduler(self, seqid, iprot, oprot):
+    args = registerWithScheduler_args()
+    args.read(iprot)
+    iprot.readMessageEnd()
+    self._handler.registerWithScheduler(args.meta)
+    return
 
 
 # HELPER FUNCTIONS AND STRUCTURES
@@ -744,138 +720,6 @@ class dispatchRecords_result:
   def __ne__(self, other):
     return not (self == other)
 
-class registerWithScheduler_args:
-  """
-  Attributes:
-   - meta
-  """
-
-  thrift_spec = (
-    None, # 0
-    (1, TType.STRUCT, 'meta', (ComputationMetadata, ComputationMetadata.thrift_spec), None, ), # 1
-  )
-
-  def __init__(self, meta=None,):
-    self.meta = meta
-
-  def read(self, iprot):
-    if iprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None and fastbinary is not None:
-      fastbinary.decode_binary(self, iprot.trans, (self.__class__, self.thrift_spec))
-      return
-    iprot.readStructBegin()
-    while True:
-      (fname, ftype, fid) = iprot.readFieldBegin()
-      if ftype == TType.STOP:
-        break
-      if fid == 1:
-        if ftype == TType.STRUCT:
-          self.meta = ComputationMetadata()
-          self.meta.read(iprot)
-        else:
-          iprot.skip(ftype)
-      else:
-        iprot.skip(ftype)
-      iprot.readFieldEnd()
-    iprot.readStructEnd()
-
-  def write(self, oprot):
-    if oprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and self.thrift_spec is not None and fastbinary is not None:
-      oprot.trans.write(fastbinary.encode_binary(self, (self.__class__, self.thrift_spec)))
-      return
-    oprot.writeStructBegin('registerWithScheduler_args')
-    if self.meta is not None:
-      oprot.writeFieldBegin('meta', TType.STRUCT, 1)
-      self.meta.write(oprot)
-      oprot.writeFieldEnd()
-    oprot.writeFieldStop()
-    oprot.writeStructEnd()
-
-  def validate(self):
-    return
-
-
-  def __hash__(self):
-    value = 17
-    value = (value * 31) ^ hash(self.meta)
-    return value
-
-  def __repr__(self):
-    L = ['%s=%r' % (key, value)
-      for key, value in self.__dict__.iteritems()]
-    return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
-
-  def __eq__(self, other):
-    return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
-
-  def __ne__(self, other):
-    return not (self == other)
-
-class registerWithScheduler_result:
-  """
-  Attributes:
-   - e
-  """
-
-  thrift_spec = (
-    None, # 0
-    (1, TType.STRUCT, 'e', (BoltError, BoltError.thrift_spec), None, ), # 1
-  )
-
-  def __init__(self, e=None,):
-    self.e = e
-
-  def read(self, iprot):
-    if iprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None and fastbinary is not None:
-      fastbinary.decode_binary(self, iprot.trans, (self.__class__, self.thrift_spec))
-      return
-    iprot.readStructBegin()
-    while True:
-      (fname, ftype, fid) = iprot.readFieldBegin()
-      if ftype == TType.STOP:
-        break
-      if fid == 1:
-        if ftype == TType.STRUCT:
-          self.e = BoltError()
-          self.e.read(iprot)
-        else:
-          iprot.skip(ftype)
-      else:
-        iprot.skip(ftype)
-      iprot.readFieldEnd()
-    iprot.readStructEnd()
-
-  def write(self, oprot):
-    if oprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and self.thrift_spec is not None and fastbinary is not None:
-      oprot.trans.write(fastbinary.encode_binary(self, (self.__class__, self.thrift_spec)))
-      return
-    oprot.writeStructBegin('registerWithScheduler_result')
-    if self.e is not None:
-      oprot.writeFieldBegin('e', TType.STRUCT, 1)
-      self.e.write(oprot)
-      oprot.writeFieldEnd()
-    oprot.writeFieldStop()
-    oprot.writeStructEnd()
-
-  def validate(self):
-    return
-
-
-  def __hash__(self):
-    value = 17
-    value = (value * 31) ^ hash(self.e)
-    return value
-
-  def __repr__(self):
-    L = ['%s=%r' % (key, value)
-      for key, value in self.__dict__.iteritems()]
-    return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
-
-  def __eq__(self, other):
-    return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
-
-  def __ne__(self, other):
-    return not (self == other)
-
 class updateSchedulerAddress_args:
   """
   Attributes:
@@ -995,6 +839,72 @@ class updateSchedulerAddress_result:
   def __hash__(self):
     value = 17
     value = (value * 31) ^ hash(self.e)
+    return value
+
+  def __repr__(self):
+    L = ['%s=%r' % (key, value)
+      for key, value in self.__dict__.iteritems()]
+    return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+  def __eq__(self, other):
+    return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+  def __ne__(self, other):
+    return not (self == other)
+
+class registerWithScheduler_args:
+  """
+  Attributes:
+   - meta
+  """
+
+  thrift_spec = (
+    None, # 0
+    (1, TType.STRUCT, 'meta', (ComputationMetadata, ComputationMetadata.thrift_spec), None, ), # 1
+  )
+
+  def __init__(self, meta=None,):
+    self.meta = meta
+
+  def read(self, iprot):
+    if iprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None and fastbinary is not None:
+      fastbinary.decode_binary(self, iprot.trans, (self.__class__, self.thrift_spec))
+      return
+    iprot.readStructBegin()
+    while True:
+      (fname, ftype, fid) = iprot.readFieldBegin()
+      if ftype == TType.STOP:
+        break
+      if fid == 1:
+        if ftype == TType.STRUCT:
+          self.meta = ComputationMetadata()
+          self.meta.read(iprot)
+        else:
+          iprot.skip(ftype)
+      else:
+        iprot.skip(ftype)
+      iprot.readFieldEnd()
+    iprot.readStructEnd()
+
+  def write(self, oprot):
+    if oprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and self.thrift_spec is not None and fastbinary is not None:
+      oprot.trans.write(fastbinary.encode_binary(self, (self.__class__, self.thrift_spec)))
+      return
+    oprot.writeStructBegin('registerWithScheduler_args')
+    if self.meta is not None:
+      oprot.writeFieldBegin('meta', TType.STRUCT, 1)
+      self.meta.write(oprot)
+      oprot.writeFieldEnd()
+    oprot.writeFieldStop()
+    oprot.writeStructEnd()
+
+  def validate(self):
+    return
+
+
+  def __hash__(self):
+    value = 17
+    value = (value * 31) ^ hash(self.meta)
     return value
 
   def __repr__(self):
