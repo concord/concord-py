@@ -228,22 +228,14 @@ class ComputationServiceWrapper(ComputationService.Iface):
         return client
 
     def set_proxy_address(self, host, port):
-        md = self.handler.metadata()
-        cmd = ComputationMetadata()
-        cmd.name = md.name
-        def enrich(x):
-            s = StreamMetadata()
-            s.name = x
-            return s
-        cmd.istreams = list(map(enrich, md.istreams))
-        cmd.ostreams = list(map(enrich, md.ostreams))
+        md = self.boltMetadata()
         proxy_endpoint = Endpoint()
         proxy_endpoint.ip = host
         proxy_endpoint.port = port
-        cmd.proxyEndpoint = proxy_endpoint
+        md.proxyEndpoint = proxy_endpoint
         self.proxy_address = (host, port)
         proxy = self.proxy()
-        proxy.registerWithScheduler(cmd)
+        proxy.registerWithScheduler(md)
 
 def serve_computation(handler):
     """Helper function. Parses environment variables and starts a thrift service
