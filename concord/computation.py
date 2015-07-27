@@ -196,7 +196,8 @@ class ComputationServiceWrapper(ComputationService.Iface):
         try:
             md = self.handler.metadata()
         except Exception as e:
-            print "Exception in metadata: ", e
+            concord_logger.error("Exception in metadata")
+            concord_logger.exception(e)
             raise e
 
         metadata = ComputationMetadata()
