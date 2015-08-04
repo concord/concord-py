@@ -13,9 +13,7 @@ from thrift import Thrift
 from thrift.transport import (
     TSocket, TTransport
 )
-from thrift.server import (
-    TServer, TNonblockingServer
-)
+from thrift.server import TServer
 from thrift.protocol import TBinaryProtocol
 from concord.internal.thrift import (
     ComputationService,
@@ -37,10 +35,13 @@ from concord.internal.thrift.constants import (
 import logging
 import logging.handlers
 
-logging.basicConfig()
-concord_logging_handle = logging.handlers.RotatingFileHandler("concord_py.log")
-concord_logger = logging.getLogger(__name__)
-concord_logger.setLevel(logging.DEBUG)
+logging.basicConfig(format='concord: %(name)s (%(levelname)-4s): %(message)s')
+concord_logging_handle = logging.handlers.RotatingFileHandler("concord_py.log",
+                                                              # 512MB
+                                                              maxBytes=512000000,
+                                                              backupCount=10)
+concord_logger = logging.getLogger('concord.computation')
+concord_logger.setLevel(logging.INFO)
 concord_logger.addHandler(concord_logging_handle)
 class Metadata:
     """High-level wrapper for `ComputationMetadata`
@@ -259,7 +260,15 @@ def serve_computation(handler):
 
     processor = ComputationService.Processor(comp)
     transport = TSocket.TServerSocket(port=listen_port)
-    server = TNonblockingServer.TNonblockingServer(processor, transport)
+    tfactory = TTransport.TFramedTransportFactory()
+    pfactory = TBinaryProtocol.TBinaryProtocolFactory()
+
+    # The reason the client computations MUST use a simple blocking server
+    # is that we have process_timer and process_record both which exec as
+    # a callback in the work thread pool which means that you might get
+    # 2 callbacks whichs makes the code multi threaded - we guarantee single
+    # thread for each callback
+    server = TServer.TSimpleServer(processor, transport, tfactory, pfactory)
 
     def thrift_service():
         concord_logger.info("Starting python service port: %d", listen_port)
