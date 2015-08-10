@@ -188,7 +188,7 @@ class ComputationServiceWrapper(ComputationService.Iface):
             if isinstance(stream, types.TupleType):
                 stream_name, grouping = stream
                 sm.name = stream_name
-                sm.grouping = StreamGrouping._NAMES_TO_VALUES.get(grouping, defaultGrouping)
+                sm.grouping = grouping
             else:
                 sm.name = stream
                 sm.grouping = defaultGrouping
