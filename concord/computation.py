@@ -77,7 +77,7 @@ def new_computation_context():
         """Wrapper class exposing a convenient API for computation to proxy
             interactions.
         """
-        def produce_record(self, stream, key, value):
+        def produce_record(self, stream, key, data):
             """Produce a record to be emitted down stream.
 
             :param stream: The stream to emit the record on.
@@ -85,12 +85,12 @@ def new_computation_context():
             :param key: The key to route this message by (only used when
                 using GROUP_BY routing).
             :type key: str.
-            :param value: The binary blob to emit down stream.
-            :type value: str.
+            :param data: The binary blob to emit down stream.
+            :type data: str.
             """
             r = Record()
             r.key = key
-            r.value = value
+            r.data = data
             r.userStream = stream
             transaction.records.append(r)
 
