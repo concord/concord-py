@@ -255,7 +255,7 @@ def serve_computation(handler):
     """
     logger.info("About to serve computation and service")
     if not 'logger' in dir(handler):
-        handler.concord_logger = logging.getLogger('concord.computation.client_logger')
+        handler.concord_logger = concord_logger()
 
     def address_str(address):
         host, port = address.split(':')
