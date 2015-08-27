@@ -35,14 +35,20 @@ from concord.internal.thrift.constants import (
 import logging
 import logging.handlers
 
-logging.basicConfig(format='concord: %(name)s (%(levelname)-4s): %(message)s')
+concord_logging_formatter = logging.Formatter('%(asctime)s concord: %(name)s '\
+                                              '(%(levelname)-4s): %(message)s')
 concord_logging_handle = logging.handlers.RotatingFileHandler("concord_py.log",
                                                               # 512MB
                                                               maxBytes=512000000,
                                                               backupCount=10)
 concord_logger = logging.getLogger('concord.computation')
-concord_logger.setLevel(logging.INFO)
+concord_logger.propagate = False
+concord_logger.setLevel(logging.DEBUG)
+concord_logging_handle.setFormatter(concord_logging_formatter)
 concord_logger.addHandler(concord_logging_handle)
+
+client_logger = None
+
 class Metadata:
     """High-level wrapper for `ComputationMetadata`
     """
@@ -238,6 +244,13 @@ class ComputationServiceWrapper(ComputationService.Iface):
         self.proxy_address = (host, port)
         proxy = self.proxy()
         proxy.registerWithScheduler(md)
+
+def computation_logger():
+    global client_logger
+    if client_logger is None:
+        client_logger = logging.getLogger('concord.computation.client_logger')
+        client_logger.info('Creating client-logger')
+    return client_logger
 
 def serve_computation(handler):
     """Helper function. Parses environment variables and starts a thrift service
