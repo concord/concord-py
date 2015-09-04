@@ -385,7 +385,7 @@ class ComputationMetadata:
     (1, TType.STRING, 'name', None, None, ), # 1
     (2, TType.STRING, 'taskId', None, None, ), # 2
     (3, TType.LIST, 'istreams', (TType.STRUCT,(StreamMetadata, StreamMetadata.thrift_spec)), None, ), # 3
-    (4, TType.LIST, 'ostreams', (TType.STRUCT,(StreamMetadata, StreamMetadata.thrift_spec)), None, ), # 4
+    (4, TType.LIST, 'ostreams', (TType.STRING,None), None, ), # 4
     (5, TType.STRUCT, 'proxyEndpoint', (Endpoint, Endpoint.thrift_spec), None, ), # 5
   )
 
@@ -431,8 +431,7 @@ class ComputationMetadata:
           self.ostreams = []
           (_etype9, _size6) = iprot.readListBegin()
           for _i10 in xrange(_size6):
-            _elem11 = StreamMetadata()
-            _elem11.read(iprot)
+            _elem11 = iprot.readString().decode('utf-8')
             self.ostreams.append(_elem11)
           iprot.readListEnd()
         else:
@@ -470,9 +469,9 @@ class ComputationMetadata:
       oprot.writeFieldEnd()
     if self.ostreams is not None:
       oprot.writeFieldBegin('ostreams', TType.LIST, 4)
-      oprot.writeListBegin(TType.STRUCT, len(self.ostreams))
+      oprot.writeListBegin(TType.STRING, len(self.ostreams))
       for iter13 in self.ostreams:
-        iter13.write(oprot)
+        oprot.writeString(iter13.encode('utf-8'))
       oprot.writeListEnd()
       oprot.writeFieldEnd()
     if self.proxyEndpoint is not None:
@@ -747,7 +746,7 @@ class ExecutorTaskInfoHelper:
   def __ne__(self, other):
     return not (self == other)
 
-class PhysicalComputationMetdata:
+class PhysicalComputationMetadata:
   """
   Attributes:
    - taskId
@@ -833,7 +832,7 @@ class PhysicalComputationMetdata:
     if oprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and self.thrift_spec is not None and fastbinary is not None:
       oprot.trans.write(fastbinary.encode_binary(self, (self.__class__, self.thrift_spec)))
       return
-    oprot.writeStructBegin('PhysicalComputationMetdata')
+    oprot.writeStructBegin('PhysicalComputationMetadata')
     if self.taskId is not None:
       oprot.writeFieldBegin('taskId', TType.STRING, 1)
       oprot.writeString(self.taskId.encode('utf-8'))
@@ -904,8 +903,8 @@ class PhysicalComputationLayout:
     None, # 0
     (1, TType.STRING, 'name', None, None, ), # 1
     (2, TType.LIST, 'istreams', (TType.STRUCT,(StreamMetadata, StreamMetadata.thrift_spec)), None, ), # 2
-    (3, TType.LIST, 'ostreams', (TType.STRUCT,(StreamMetadata, StreamMetadata.thrift_spec)), None, ), # 3
-    (4, TType.LIST, 'nodes', (TType.STRUCT,(PhysicalComputationMetdata, PhysicalComputationMetdata.thrift_spec)), None, ), # 4
+    (3, TType.LIST, 'ostreams', (TType.STRING,None), None, ), # 3
+    (4, TType.LIST, 'nodes', (TType.STRUCT,(PhysicalComputationMetadata, PhysicalComputationMetadata.thrift_spec)), None, ), # 4
   )
 
   def __init__(self, name=None, istreams=None, ostreams=None, nodes=None,):
@@ -944,8 +943,7 @@ class PhysicalComputationLayout:
           self.ostreams = []
           (_etype37, _size34) = iprot.readListBegin()
           for _i38 in xrange(_size34):
-            _elem39 = StreamMetadata()
-            _elem39.read(iprot)
+            _elem39 = iprot.readString().decode('utf-8')
             self.ostreams.append(_elem39)
           iprot.readListEnd()
         else:
@@ -955,7 +953,7 @@ class PhysicalComputationLayout:
           self.nodes = []
           (_etype43, _size40) = iprot.readListBegin()
           for _i44 in xrange(_size40):
-            _elem45 = PhysicalComputationMetdata()
+            _elem45 = PhysicalComputationMetadata()
             _elem45.read(iprot)
             self.nodes.append(_elem45)
           iprot.readListEnd()
@@ -984,9 +982,9 @@ class PhysicalComputationLayout:
       oprot.writeFieldEnd()
     if self.ostreams is not None:
       oprot.writeFieldBegin('ostreams', TType.LIST, 3)
-      oprot.writeListBegin(TType.STRUCT, len(self.ostreams))
+      oprot.writeListBegin(TType.STRING, len(self.ostreams))
       for iter47 in self.ostreams:
-        iter47.write(oprot)
+        oprot.writeString(iter47.encode('utf-8'))
       oprot.writeListEnd()
       oprot.writeFieldEnd()
     if self.nodes is not None:
@@ -1105,21 +1103,21 @@ class TopologyMetadata:
   """
   Attributes:
    - version
-   - hash
    - computations
+   - frameworkID
   """
 
   thrift_spec = (
     None, # 0
     (1, TType.I32, 'version', None, 0, ), # 1
-    (2, TType.STRING, 'hash', None, None, ), # 2
-    (3, TType.MAP, 'computations', (TType.STRING,None,TType.STRUCT,(PhysicalComputationLayout, PhysicalComputationLayout.thrift_spec)), None, ), # 3
+    (2, TType.MAP, 'computations', (TType.STRING,None,TType.STRUCT,(PhysicalComputationLayout, PhysicalComputationLayout.thrift_spec)), None, ), # 2
+    (3, TType.STRING, 'frameworkID', None, None, ), # 3
   )
 
-  def __init__(self, version=thrift_spec[1][4], hash=None, computations=None,):
+  def __init__(self, version=thrift_spec[1][4], computations=None, frameworkID=None,):
     self.version = version
-    self.hash = hash
     self.computations = computations
+    self.frameworkID = frameworkID
 
   def read(self, iprot):
     if iprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None and fastbinary is not None:
@@ -1136,11 +1134,6 @@ class TopologyMetadata:
         else:
           iprot.skip(ftype)
       elif fid == 2:
-        if ftype == TType.STRING:
-          self.hash = iprot.readString().decode('utf-8')
-        else:
-          iprot.skip(ftype)
-      elif fid == 3:
         if ftype == TType.MAP:
           self.computations = {}
           (_ktype50, _vtype51, _size49 ) = iprot.readMapBegin()
@@ -1150,6 +1143,11 @@ class TopologyMetadata:
             _val55.read(iprot)
             self.computations[_key54] = _val55
           iprot.readMapEnd()
+        else:
+          iprot.skip(ftype)
+      elif fid == 3:
+        if ftype == TType.STRING:
+          self.frameworkID = iprot.readString().decode('utf-8')
         else:
           iprot.skip(ftype)
       else:
@@ -1166,17 +1164,17 @@ class TopologyMetadata:
       oprot.writeFieldBegin('version', TType.I32, 1)
       oprot.writeI32(self.version)
       oprot.writeFieldEnd()
-    if self.hash is not None:
-      oprot.writeFieldBegin('hash', TType.STRING, 2)
-      oprot.writeString(self.hash.encode('utf-8'))
-      oprot.writeFieldEnd()
     if self.computations is not None:
-      oprot.writeFieldBegin('computations', TType.MAP, 3)
+      oprot.writeFieldBegin('computations', TType.MAP, 2)
       oprot.writeMapBegin(TType.STRING, TType.STRUCT, len(self.computations))
       for kiter56,viter57 in self.computations.items():
         oprot.writeString(kiter56.encode('utf-8'))
         viter57.write(oprot)
       oprot.writeMapEnd()
+      oprot.writeFieldEnd()
+    if self.frameworkID is not None:
+      oprot.writeFieldBegin('frameworkID', TType.STRING, 3)
+      oprot.writeString(self.frameworkID.encode('utf-8'))
       oprot.writeFieldEnd()
     oprot.writeFieldStop()
     oprot.writeStructEnd()
@@ -1188,8 +1186,8 @@ class TopologyMetadata:
   def __hash__(self):
     value = 17
     value = (value * 31) ^ hash(self.version)
-    value = (value * 31) ^ hash(self.hash)
     value = (value * 31) ^ hash(self.computations)
+    value = (value * 31) ^ hash(self.frameworkID)
     return value
 
   def __repr__(self):
