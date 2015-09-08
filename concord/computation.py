@@ -204,7 +204,7 @@ class ComputationServiceWrapper(ComputationService.Iface):
         metadata = ComputationMetadata()
         metadata.name = md.name
         metadata.istreams = list(map(enrich_stream, md.istreams))
-        metadata.ostreams = list(map(enrich_stream, md.ostreams))
+        metadata.ostreams = md.ostreams
         return metadata
 
     def set_state(self, key, value):
