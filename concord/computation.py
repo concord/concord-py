@@ -254,7 +254,7 @@ def serve_computation(handler):
     :type handler: Computation.
     """
     ccord_logger.info("About to serve computation and service")
-    if not 'logger' in dir(handler):
+    if not 'concord_logger' in dir(handler):
         handler.concord_logger = concord_logger()
 
     def address_str(address):
