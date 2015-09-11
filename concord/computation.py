@@ -263,25 +263,19 @@ def serve_computation(handler):
     tfactory = TTransport.TFramedTransportFactory()
     pfactory = TBinaryProtocol.TBinaryProtocolFactory()
 
-    # The reason the client computations MUST use a simple blocking server
-    # is that we have process_timer and process_record both which exec as
-    # a callback in the work thread pool which means that you might get
-    # 2 callbacks whichs makes the code multi threaded - we guarantee single
-    # thread for each callback
-    server = TServer.TSimpleServer(processor, transport, tfactory, pfactory)
 
-    def thrift_service():
-        concord_logger.info("Starting python service port: %d", listen_port)
-        server.serve()
-        concord_logger.error("Exciting service")
 
     try:
+        concord_logger.info("Starting python service port: %d", listen_port)
+        server = TServer.TSimpleServer(processor, transport, tfactory, pfactory)
         concord_logger.info("registering with framework at: %s:%d",
                             proxy_host, proxy_port)
         comp.set_proxy_address(proxy_host, proxy_port)
+        server.serve()
+        concord_logger.error("Exciting service")
         thrift_service()
     except Exception as exception:
         concord_logger.fatal(exception)
         concord_logger.error("Exception in python client")
-        server.stop()
+        if server is not None: server.stop()
         raise exception
