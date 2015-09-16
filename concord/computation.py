@@ -243,10 +243,6 @@ class ComputationServiceWrapper(ComputationService.Iface):
         proxy = self.proxy()
         proxy.registerWithScheduler(md)
 
-def concord_logger():
-    # Returns the same logger everytime
-    return logging.getLogger('concord.computation.client_logger')
-
 def serve_computation(handler):
     """Helper function. Parses environment variables and starts a thrift service
         wrapping the user-defined computation.
@@ -255,7 +251,7 @@ def serve_computation(handler):
     """
     ccord_logger.info("About to serve computation and service")
     if not 'concord_logger' in dir(handler):
-        handler.concord_logger = concord_logger()
+        handler.concord_logger = ccord_logger
 
     def address_str(address):
         host, port = address.split(':')
