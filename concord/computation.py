@@ -278,4 +278,4 @@ def serve_computation(handler):
         concord_logger.fatal(exception)
         concord_logger.error("Exception in python client")
         if server is not None: server.stop()
-        raise exception
+        sys.exit(1)
