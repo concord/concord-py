@@ -5,14 +5,15 @@ from setuptools import setup, find_packages
 from pip.req import parse_requirements
 from subprocess import call
 
+reqs_file = os.path.join(os.path.dirname(os.path.realpath(__file__))
+                   , "requirements.txt")
 
-reqs=[
-    'thrift==0.9.2',
-    'argparse==1.2.1',
-    'six==1.9.0',
-    'wsgiref==0.1.2',
-    'zope.interface==4.1.2'
-]
+install_reqs = parse_requirements(reqs_file, session=pip.download.PipSession())
+
+
+# reqs is a list of requirement
+# e.g. ['django==1.5.1', 'mezzanine==1.4.6']
+reqs = [str(ir.req) for ir in install_reqs]
 
 setup(version='0.2.7',
       name='concord-py',

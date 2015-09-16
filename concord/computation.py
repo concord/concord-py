@@ -35,14 +35,18 @@ from concord.internal.thrift.constants import (
 import logging
 import logging.handlers
 
-logging.basicConfig(format='concord: %(name)s (%(levelname)-4s): %(message)s')
+concord_formatter = logging.Formatter('%(levelname)s:%(asctime)s'\
+                                      ' %(filename)s:%(lineno)d] %(message)s')
 concord_logging_handle = logging.handlers.RotatingFileHandler("concord_py.log",
                                                               # 512MB
                                                               maxBytes=512000000,
                                                               backupCount=10)
-concord_logger = logging.getLogger('concord.computation')
-concord_logger.setLevel(logging.INFO)
-concord_logger.addHandler(concord_logging_handle)
+ccord_logger = logging.getLogger('concord.computation')
+ccord_logger.propagate = False
+ccord_logger.setLevel(logging.DEBUG)
+concord_logging_handle.setFormatter(concord_formatter)
+ccord_logger.addHandler(concord_logging_handle)
+
 class Metadata:
     """High-level wrapper for `ComputationMetadata`
     """
@@ -156,8 +160,8 @@ class ComputationServiceWrapper(ComputationService.Iface):
         try:
             self.handler.init(ctx)
         except Exception as e:
-            concord_logger.error("Exception in client init")
-            concord_logger.exception(e)
+            ccord_logger.error("Exception in client init")
+            ccord_logger.exception(e)
             raise e
         return transaction
 
@@ -166,8 +170,8 @@ class ComputationServiceWrapper(ComputationService.Iface):
         try:
             self.handler.process_record(ctx, record)
         except Exception as e:
-            concord_logger.error("Exception in process_record")
-            concord_logger.exception(e)
+            ccord_logger.error("Exception in process_record")
+            ccord_logger.exception(e)
             raise e
         return transaction
 
@@ -176,8 +180,8 @@ class ComputationServiceWrapper(ComputationService.Iface):
         try:
             self.handler.process_timer(ctx, key, time)
         except Exception as e:
-            concord_logger.error("Exception in process_timer")
-            concord_logger.exception(e)
+            ccord_logger.error("Exception in process_timer")
+            ccord_logger.exception(e)
             raise e
         return transaction
 
@@ -197,8 +201,8 @@ class ComputationServiceWrapper(ComputationService.Iface):
         try:
             md = self.handler.metadata()
         except Exception as e:
-            concord_logger.error("Exception in metadata")
-            concord_logger.exception(e)
+            ccord_logger.error("Exception in metadata")
+            ccord_logger.exception(e)
             raise e
 
         metadata = ComputationMetadata()
@@ -239,13 +243,19 @@ class ComputationServiceWrapper(ComputationService.Iface):
         proxy = self.proxy()
         proxy.registerWithScheduler(md)
 
+def concord_logger():
+    # Returns the same logger everytime
+    return logging.getLogger('concord.computation.client_logger')
+
 def serve_computation(handler):
     """Helper function. Parses environment variables and starts a thrift service
         wrapping the user-defined computation.
     :param handler: The user computation.
     :type handler: Computation.
     """
-    concord_logger.info("About to serve computation and service")
+    ccord_logger.info("About to serve computation and service")
+    if not 'concord_logger' in dir(handler):
+        handler.concord_logger = concord_logger()
 
     def address_str(address):
         host, port = address.split(':')
@@ -263,19 +273,17 @@ def serve_computation(handler):
     tfactory = TTransport.TFramedTransportFactory()
     pfactory = TBinaryProtocol.TBinaryProtocolFactory()
 
-
-
     try:
-        concord_logger.info("Starting python service port: %d", listen_port)
+        ccord_logger.info("Starting python service port: %d", listen_port)
         server = TServer.TSimpleServer(processor, transport, tfactory, pfactory)
-        concord_logger.info("registering with framework at: %s:%d",
-                            proxy_host, proxy_port)
+        ccord_logger.info("registering with framework at: %s:%d",
+                          proxy_host, proxy_port)
         comp.set_proxy_address(proxy_host, proxy_port)
         server.serve()
         concord_logger.error("Exciting service")
         thrift_service()
     except Exception as exception:
-        concord_logger.fatal(exception)
-        concord_logger.error("Exception in python client")
+        ccord_logger.fatal(exception)
+        ccord_logger.error("Exception in python client")
         if server is not None: server.stop()
         sys.exit(1)
