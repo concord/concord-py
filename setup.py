@@ -10,6 +10,7 @@ reqs_file = os.path.join(os.path.dirname(os.path.realpath(__file__))
 
 install_reqs = parse_requirements(reqs_file, session=pip.download.PipSession())
 
+
 # reqs is a list of requirement
 # e.g. ['django==1.5.1', 'mezzanine==1.4.6']
 reqs = [str(ir.req) for ir in install_reqs]
