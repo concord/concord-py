@@ -14,7 +14,7 @@ reqs=[
     'zope.interface==4.1.2'
 ]
 
-setup(version='0.2.6',
+setup(version='0.2.7',
       name='concord-py',
       description='python concord command line tools',
       scripts=[],
