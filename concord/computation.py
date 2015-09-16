@@ -47,7 +47,6 @@ concord_logging_handle.setFormatter(concord_formatter)
 
 for h in logging.getLogger().handlers: h.setFormatter(concord_formatter)
 
-ccord_logger.addHandler(concord_logging_handle)
 ccord_logger = logging.getLogger('concord.computation')
 ccord_logger.setLevel(logging.WARNING)
 ccord_logger.propagate = False
