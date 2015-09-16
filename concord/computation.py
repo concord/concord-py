@@ -36,17 +36,21 @@ import logging
 import logging.handlers
 
 # this is needed for Thrift, etc
-logging.basicConfig()
+logging.basicConfig(level=logging.WARNING)
 concord_formatter = logging.Formatter('%(levelname)s:%(asctime)s'\
                                       ' %(filename)s:%(lineno)d] %(message)s')
 concord_logging_handle = logging.handlers.RotatingFileHandler("concord_py.log",
                                                               # 512MB
                                                               maxBytes=512000000,
                                                               backupCount=10)
-ccord_logger = logging.getLogger('concord.computation')
-ccord_logger.propagate=False
-ccord_logger.setLevel(logging.DEBUG)
 concord_logging_handle.setFormatter(concord_formatter)
+
+for h in logging.getLogger().handlers: h.setFormatter(concord_formatter)
+
+ccord_logger.addHandler(concord_logging_handle)
+ccord_logger = logging.getLogger('concord.computation')
+ccord_logger.setLevel(logging.WARNING)
+ccord_logger.propagate = False
 ccord_logger.addHandler(concord_logging_handle)
 
 class Metadata:
