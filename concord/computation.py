@@ -35,6 +35,8 @@ from concord.internal.thrift.constants import (
 import logging
 import logging.handlers
 
+# this is needed for Thrift, etc
+logging.basicConfig()
 concord_formatter = logging.Formatter('%(levelname)s:%(asctime)s'\
                                       ' %(filename)s:%(lineno)d] %(message)s')
 concord_logging_handle = logging.handlers.RotatingFileHandler("concord_py.log",
