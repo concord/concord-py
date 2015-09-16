@@ -35,10 +35,11 @@ from concord.internal.thrift.constants import (
 import logging
 import logging.handlers
 
-# this is needed for Thrift, etc
-logging.basicConfig()
-concord_formatter = logging.Formatter('%(levelname)s:%(asctime)s'\
-                                      ' %(filename)s:%(lineno)d] %(message)s')
+logging_format_string='%(levelname)s:%(asctime)s %(filename)s:%(lineno)d] %(message)s'
+
+# Basic Config is needed for thrift and default loggers
+logging.basicConfig(format=logging_format_string)
+concord_formatter = logging.Formatter(logging_format_string)
 concord_logging_handle = logging.handlers.RotatingFileHandler("concord_py.log",
                                                               # 512MB
                                                               maxBytes=512000000,
