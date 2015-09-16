@@ -42,7 +42,6 @@ concord_logging_handle = logging.handlers.RotatingFileHandler("concord_py.log",
                                                               maxBytes=512000000,
                                                               backupCount=10)
 ccord_logger = logging.getLogger('concord.computation')
-ccord_logger.propagate = False
 ccord_logger.setLevel(logging.DEBUG)
 concord_logging_handle.setFormatter(concord_formatter)
 ccord_logger.addHandler(concord_logging_handle)
@@ -199,6 +198,7 @@ class ComputationServiceWrapper(ComputationService.Iface):
             return sm
 
         try:
+            ccord_logger.info("Getting client metadata")
             md = self.handler.metadata()
         except Exception as e:
             ccord_logger.error("Exception in metadata")
@@ -209,6 +209,7 @@ class ComputationServiceWrapper(ComputationService.Iface):
         metadata.name = md.name
         metadata.istreams = list(map(enrich_stream, md.istreams))
         metadata.ostreams = md.ostreams
+        ccord_logger.info("Got metadata: %s", metadata)
         return metadata
 
     def set_state(self, key, value):
