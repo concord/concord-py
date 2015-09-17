@@ -40,10 +40,7 @@ logging_format_string='%(levelname)s:%(asctime)s %(filename)s:%(lineno)d] %(mess
 # Basic Config is needed for thrift and default loggers
 logging.basicConfig(format=logging_format_string)
 concord_formatter = logging.Formatter(logging_format_string)
-concord_logging_handle = logging.handlers.RotatingFileHandler("concord_py.log",
-                                                              # 512MB
-                                                              maxBytes=512000000,
-                                                              backupCount=10)
+concord_logging_handle = logging.handlers.TimedRotatingFileHandler("concord_py.log")
 concord_logging_handle.setFormatter(concord_formatter)
 
 for h in logging.getLogger().handlers: h.setFormatter(concord_formatter)

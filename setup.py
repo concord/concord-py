@@ -15,7 +15,7 @@ install_reqs = parse_requirements(reqs_file, session=pip.download.PipSession())
 # e.g. ['django==1.5.1', 'mezzanine==1.4.6']
 reqs = [str(ir.req) for ir in install_reqs]
 
-setup(version='0.2.17',
+setup(version='0.2.18',
       name='concord-py',
       description='python concord command line tools',
       scripts=[],
