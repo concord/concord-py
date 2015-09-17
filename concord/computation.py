@@ -166,9 +166,10 @@ class ComputationServiceWrapper(ComputationService.Iface):
         try:
             self.handler.init(ctx)
         except Exception as e:
-            ccord_logger.error("Exception in client init")
             ccord_logger.exception(e)
-            raise e
+            ccord_logger.critical("Exception in client init")
+            sys.exit(1)
+
         return transaction
 
     def boltProcessRecord(self, record):
@@ -176,9 +177,10 @@ class ComputationServiceWrapper(ComputationService.Iface):
         try:
             self.handler.process_record(ctx, record)
         except Exception as e:
-            ccord_logger.error("Exception in process_record")
             ccord_logger.exception(e)
-            raise e
+            ccord_logger.critical("Exception in process_record")
+            sys.exit(1)
+
         return transaction
 
     def boltProcessTimer(self, key, time):
@@ -186,9 +188,10 @@ class ComputationServiceWrapper(ComputationService.Iface):
         try:
             self.handler.process_timer(ctx, key, time)
         except Exception as e:
-            ccord_logger.error("Exception in process_timer")
             ccord_logger.exception(e)
-            raise e
+            ccord_logger.critical("Exception in process_timer")
+            sys.exit(1)
+
         return transaction
 
     def boltMetadata(self):
@@ -208,9 +211,9 @@ class ComputationServiceWrapper(ComputationService.Iface):
             ccord_logger.info("Getting client metadata")
             md = self.handler.metadata()
         except Exception as e:
-            ccord_logger.error("Exception in metadata")
             ccord_logger.exception(e)
-            raise e
+            ccord_logger.critical("Exception in metadata")
+            sys.exit(1)
 
         metadata = ComputationMetadata()
         metadata.name = md.name
@@ -285,9 +288,14 @@ def serve_computation(handler):
         comp.set_proxy_address(proxy_host, proxy_port)
         server.serve()
         concord_logger.error("Exciting service")
-        thrift_service()
     except Exception as exception:
-        ccord_logger.fatal(exception)
-        ccord_logger.error("Exception in python client")
-        if server is not None: server.stop()
+        try:
+            if server is not None: server.stop()
+        except:
+            # swallow exception to stop, already are
+            # in an exception state
+            ccord_logger("Error calling stop")
+
+        ccord_logger.exception(exception)
+        ccord_logger.critical("Exception in python client")
         sys.exit(1)
