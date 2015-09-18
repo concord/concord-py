@@ -291,7 +291,7 @@ def serve_computation(handler):
         except:
             # swallow exception to stop, already are
             # in an exception state
-            ccord_logger("Error calling stop")
+            ccord_logger.error("Error calling stop")
 
         ccord_logger.exception(exception)
         ccord_logger.critical("Exception in python client")
