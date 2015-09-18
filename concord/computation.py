@@ -286,13 +286,6 @@ def serve_computation(handler):
         server.serve()
         concord_logger.error("Exciting service")
     except Exception as exception:
-        try:
-            if server is not None: server.stop()
-        except:
-            # swallow exception to stop, already are
-            # in an exception state
-            ccord_logger.error("Error calling stop")
-
         ccord_logger.exception(exception)
         ccord_logger.critical("Exception in python client")
         sys.exit(1)
