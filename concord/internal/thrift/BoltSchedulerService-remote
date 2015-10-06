@@ -26,7 +26,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
   print('Functions:')
   print('  void deployComputation(BoltComputationRequest request)')
   print('  string getComputationSlug(string computationName)')
-  print('  void registerComputation(ComputationMetadata computation)')
+  print('  TopologyMetadata registerComputation(ComputationMetadata computation)')
   print('  void scaleComputation(string computationName, i64 instances)')
   print('  void killTask(string taskId)')
   print('')

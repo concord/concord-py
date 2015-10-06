@@ -19,17 +19,10 @@ except:
 
 
 class Iface(concord.internal.thrift.MutableEphemeralStateService.Iface):
-  def registerRichStream(self, r):
+  def updateTopology(self, topology):
     """
     Parameters:
-     - r
-    """
-    pass
-
-  def deregisterRichStream(self, r):
-    """
-    Parameters:
-     - r
+     - topology
     """
     pass
 
@@ -59,23 +52,23 @@ class Client(concord.internal.thrift.MutableEphemeralStateService.Client, Iface)
   def __init__(self, iprot, oprot=None):
     concord.internal.thrift.MutableEphemeralStateService.Client.__init__(self, iprot, oprot)
 
-  def registerRichStream(self, r):
+  def updateTopology(self, topology):
     """
     Parameters:
-     - r
+     - topology
     """
-    self.send_registerRichStream(r)
-    return self.recv_registerRichStream()
+    self.send_updateTopology(topology)
+    self.recv_updateTopology()
 
-  def send_registerRichStream(self, r):
-    self._oprot.writeMessageBegin('registerRichStream', TMessageType.CALL, self._seqid)
-    args = registerRichStream_args()
-    args.r = r
+  def send_updateTopology(self, topology):
+    self._oprot.writeMessageBegin('updateTopology', TMessageType.CALL, self._seqid)
+    args = updateTopology_args()
+    args.topology = topology
     args.write(self._oprot)
     self._oprot.writeMessageEnd()
     self._oprot.trans.flush()
 
-  def recv_registerRichStream(self):
+  def recv_updateTopology(self):
     iprot = self._iprot
     (fname, mtype, rseqid) = iprot.readMessageBegin()
     if mtype == TMessageType.EXCEPTION:
@@ -83,47 +76,12 @@ class Client(concord.internal.thrift.MutableEphemeralStateService.Client, Iface)
       x.read(iprot)
       iprot.readMessageEnd()
       raise x
-    result = registerRichStream_result()
+    result = updateTopology_result()
     result.read(iprot)
     iprot.readMessageEnd()
-    if result.success is not None:
-      return result.success
     if result.e is not None:
       raise result.e
-    raise TApplicationException(TApplicationException.MISSING_RESULT, "registerRichStream failed: unknown result");
-
-  def deregisterRichStream(self, r):
-    """
-    Parameters:
-     - r
-    """
-    self.send_deregisterRichStream(r)
-    return self.recv_deregisterRichStream()
-
-  def send_deregisterRichStream(self, r):
-    self._oprot.writeMessageBegin('deregisterRichStream', TMessageType.CALL, self._seqid)
-    args = deregisterRichStream_args()
-    args.r = r
-    args.write(self._oprot)
-    self._oprot.writeMessageEnd()
-    self._oprot.trans.flush()
-
-  def recv_deregisterRichStream(self):
-    iprot = self._iprot
-    (fname, mtype, rseqid) = iprot.readMessageBegin()
-    if mtype == TMessageType.EXCEPTION:
-      x = TApplicationException()
-      x.read(iprot)
-      iprot.readMessageEnd()
-      raise x
-    result = deregisterRichStream_result()
-    result.read(iprot)
-    iprot.readMessageEnd()
-    if result.success is not None:
-      return result.success
-    if result.e is not None:
-      raise result.e
-    raise TApplicationException(TApplicationException.MISSING_RESULT, "deregisterRichStream failed: unknown result");
+    return
 
   def dispatchRecords(self, records):
     """
@@ -205,8 +163,7 @@ class Client(concord.internal.thrift.MutableEphemeralStateService.Client, Iface)
 class Processor(concord.internal.thrift.MutableEphemeralStateService.Processor, Iface, TProcessor):
   def __init__(self, handler):
     concord.internal.thrift.MutableEphemeralStateService.Processor.__init__(self, handler)
-    self._processMap["registerRichStream"] = Processor.process_registerRichStream
-    self._processMap["deregisterRichStream"] = Processor.process_deregisterRichStream
+    self._processMap["updateTopology"] = Processor.process_updateTopology
     self._processMap["dispatchRecords"] = Processor.process_dispatchRecords
     self._processMap["updateSchedulerAddress"] = Processor.process_updateSchedulerAddress
     self._processMap["registerWithScheduler"] = Processor.process_registerWithScheduler
@@ -226,30 +183,16 @@ class Processor(concord.internal.thrift.MutableEphemeralStateService.Processor, 
       self._processMap[name](self, seqid, iprot, oprot)
     return True
 
-  def process_registerRichStream(self, seqid, iprot, oprot):
-    args = registerRichStream_args()
+  def process_updateTopology(self, seqid, iprot, oprot):
+    args = updateTopology_args()
     args.read(iprot)
     iprot.readMessageEnd()
-    result = registerRichStream_result()
+    result = updateTopology_result()
     try:
-      result.success = self._handler.registerRichStream(args.r)
+      self._handler.updateTopology(args.topology)
     except BoltError, e:
       result.e = e
-    oprot.writeMessageBegin("registerRichStream", TMessageType.REPLY, seqid)
-    result.write(oprot)
-    oprot.writeMessageEnd()
-    oprot.trans.flush()
-
-  def process_deregisterRichStream(self, seqid, iprot, oprot):
-    args = deregisterRichStream_args()
-    args.read(iprot)
-    iprot.readMessageEnd()
-    result = deregisterRichStream_result()
-    try:
-      result.success = self._handler.deregisterRichStream(args.r)
-    except BoltError, e:
-      result.e = e
-    oprot.writeMessageBegin("deregisterRichStream", TMessageType.REPLY, seqid)
+    oprot.writeMessageBegin("updateTopology", TMessageType.REPLY, seqid)
     result.write(oprot)
     oprot.writeMessageEnd()
     oprot.trans.flush()
@@ -292,19 +235,19 @@ class Processor(concord.internal.thrift.MutableEphemeralStateService.Processor, 
 
 # HELPER FUNCTIONS AND STRUCTURES
 
-class registerRichStream_args:
+class updateTopology_args:
   """
   Attributes:
-   - r
+   - topology
   """
 
   thrift_spec = (
     None, # 0
-    (1, TType.STRUCT, 'r', (RichStream, RichStream.thrift_spec), None, ), # 1
+    (1, TType.STRUCT, 'topology', (TopologyMetadata, TopologyMetadata.thrift_spec), None, ), # 1
   )
 
-  def __init__(self, r=None,):
-    self.r = r
+  def __init__(self, topology=None,):
+    self.topology = topology
 
   def read(self, iprot):
     if iprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None and fastbinary is not None:
@@ -317,8 +260,8 @@ class registerRichStream_args:
         break
       if fid == 1:
         if ftype == TType.STRUCT:
-          self.r = RichStream()
-          self.r.read(iprot)
+          self.topology = TopologyMetadata()
+          self.topology.read(iprot)
         else:
           iprot.skip(ftype)
       else:
@@ -330,10 +273,10 @@ class registerRichStream_args:
     if oprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and self.thrift_spec is not None and fastbinary is not None:
       oprot.trans.write(fastbinary.encode_binary(self, (self.__class__, self.thrift_spec)))
       return
-    oprot.writeStructBegin('registerRichStream_args')
-    if self.r is not None:
-      oprot.writeFieldBegin('r', TType.STRUCT, 1)
-      self.r.write(oprot)
+    oprot.writeStructBegin('updateTopology_args')
+    if self.topology is not None:
+      oprot.writeFieldBegin('topology', TType.STRUCT, 1)
+      self.topology.write(oprot)
       oprot.writeFieldEnd()
     oprot.writeFieldStop()
     oprot.writeStructEnd()
@@ -344,7 +287,7 @@ class registerRichStream_args:
 
   def __hash__(self):
     value = 17
-    value = (value * 31) ^ hash(self.r)
+    value = (value * 31) ^ hash(self.topology)
     return value
 
   def __repr__(self):
@@ -358,20 +301,18 @@ class registerRichStream_args:
   def __ne__(self, other):
     return not (self == other)
 
-class registerRichStream_result:
+class updateTopology_result:
   """
   Attributes:
-   - success
    - e
   """
 
   thrift_spec = (
-    (0, TType.BOOL, 'success', None, None, ), # 0
+    None, # 0
     (1, TType.STRUCT, 'e', (BoltError, BoltError.thrift_spec), None, ), # 1
   )
 
-  def __init__(self, success=None, e=None,):
-    self.success = success
+  def __init__(self, e=None,):
     self.e = e
 
   def read(self, iprot):
@@ -383,12 +324,7 @@ class registerRichStream_result:
       (fname, ftype, fid) = iprot.readFieldBegin()
       if ftype == TType.STOP:
         break
-      if fid == 0:
-        if ftype == TType.BOOL:
-          self.success = iprot.readBool();
-        else:
-          iprot.skip(ftype)
-      elif fid == 1:
+      if fid == 1:
         if ftype == TType.STRUCT:
           self.e = BoltError()
           self.e.read(iprot)
@@ -403,11 +339,7 @@ class registerRichStream_result:
     if oprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and self.thrift_spec is not None and fastbinary is not None:
       oprot.trans.write(fastbinary.encode_binary(self, (self.__class__, self.thrift_spec)))
       return
-    oprot.writeStructBegin('registerRichStream_result')
-    if self.success is not None:
-      oprot.writeFieldBegin('success', TType.BOOL, 0)
-      oprot.writeBool(self.success)
-      oprot.writeFieldEnd()
+    oprot.writeStructBegin('updateTopology_result')
     if self.e is not None:
       oprot.writeFieldBegin('e', TType.STRUCT, 1)
       self.e.write(oprot)
@@ -421,151 +353,6 @@ class registerRichStream_result:
 
   def __hash__(self):
     value = 17
-    value = (value * 31) ^ hash(self.success)
-    value = (value * 31) ^ hash(self.e)
-    return value
-
-  def __repr__(self):
-    L = ['%s=%r' % (key, value)
-      for key, value in self.__dict__.iteritems()]
-    return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
-
-  def __eq__(self, other):
-    return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
-
-  def __ne__(self, other):
-    return not (self == other)
-
-class deregisterRichStream_args:
-  """
-  Attributes:
-   - r
-  """
-
-  thrift_spec = (
-    None, # 0
-    (1, TType.STRUCT, 'r', (RichStream, RichStream.thrift_spec), None, ), # 1
-  )
-
-  def __init__(self, r=None,):
-    self.r = r
-
-  def read(self, iprot):
-    if iprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None and fastbinary is not None:
-      fastbinary.decode_binary(self, iprot.trans, (self.__class__, self.thrift_spec))
-      return
-    iprot.readStructBegin()
-    while True:
-      (fname, ftype, fid) = iprot.readFieldBegin()
-      if ftype == TType.STOP:
-        break
-      if fid == 1:
-        if ftype == TType.STRUCT:
-          self.r = RichStream()
-          self.r.read(iprot)
-        else:
-          iprot.skip(ftype)
-      else:
-        iprot.skip(ftype)
-      iprot.readFieldEnd()
-    iprot.readStructEnd()
-
-  def write(self, oprot):
-    if oprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and self.thrift_spec is not None and fastbinary is not None:
-      oprot.trans.write(fastbinary.encode_binary(self, (self.__class__, self.thrift_spec)))
-      return
-    oprot.writeStructBegin('deregisterRichStream_args')
-    if self.r is not None:
-      oprot.writeFieldBegin('r', TType.STRUCT, 1)
-      self.r.write(oprot)
-      oprot.writeFieldEnd()
-    oprot.writeFieldStop()
-    oprot.writeStructEnd()
-
-  def validate(self):
-    return
-
-
-  def __hash__(self):
-    value = 17
-    value = (value * 31) ^ hash(self.r)
-    return value
-
-  def __repr__(self):
-    L = ['%s=%r' % (key, value)
-      for key, value in self.__dict__.iteritems()]
-    return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
-
-  def __eq__(self, other):
-    return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
-
-  def __ne__(self, other):
-    return not (self == other)
-
-class deregisterRichStream_result:
-  """
-  Attributes:
-   - success
-   - e
-  """
-
-  thrift_spec = (
-    (0, TType.BOOL, 'success', None, None, ), # 0
-    (1, TType.STRUCT, 'e', (BoltError, BoltError.thrift_spec), None, ), # 1
-  )
-
-  def __init__(self, success=None, e=None,):
-    self.success = success
-    self.e = e
-
-  def read(self, iprot):
-    if iprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None and fastbinary is not None:
-      fastbinary.decode_binary(self, iprot.trans, (self.__class__, self.thrift_spec))
-      return
-    iprot.readStructBegin()
-    while True:
-      (fname, ftype, fid) = iprot.readFieldBegin()
-      if ftype == TType.STOP:
-        break
-      if fid == 0:
-        if ftype == TType.BOOL:
-          self.success = iprot.readBool();
-        else:
-          iprot.skip(ftype)
-      elif fid == 1:
-        if ftype == TType.STRUCT:
-          self.e = BoltError()
-          self.e.read(iprot)
-        else:
-          iprot.skip(ftype)
-      else:
-        iprot.skip(ftype)
-      iprot.readFieldEnd()
-    iprot.readStructEnd()
-
-  def write(self, oprot):
-    if oprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and self.thrift_spec is not None and fastbinary is not None:
-      oprot.trans.write(fastbinary.encode_binary(self, (self.__class__, self.thrift_spec)))
-      return
-    oprot.writeStructBegin('deregisterRichStream_result')
-    if self.success is not None:
-      oprot.writeFieldBegin('success', TType.BOOL, 0)
-      oprot.writeBool(self.success)
-      oprot.writeFieldEnd()
-    if self.e is not None:
-      oprot.writeFieldBegin('e', TType.STRUCT, 1)
-      self.e.write(oprot)
-      oprot.writeFieldEnd()
-    oprot.writeFieldStop()
-    oprot.writeStructEnd()
-
-  def validate(self):
-    return
-
-
-  def __hash__(self):
-    value = 17
-    value = (value * 31) ^ hash(self.success)
     value = (value * 31) ^ hash(self.e)
     return value
 
@@ -606,11 +393,11 @@ class dispatchRecords_args:
       if fid == 1:
         if ftype == TType.LIST:
           self.records = []
-          (_etype107, _size104) = iprot.readListBegin()
-          for _i108 in xrange(_size104):
-            _elem109 = Record()
-            _elem109.read(iprot)
-            self.records.append(_elem109)
+          (_etype112, _size109) = iprot.readListBegin()
+          for _i113 in xrange(_size109):
+            _elem114 = Record()
+            _elem114.read(iprot)
+            self.records.append(_elem114)
           iprot.readListEnd()
         else:
           iprot.skip(ftype)
@@ -627,8 +414,8 @@ class dispatchRecords_args:
     if self.records is not None:
       oprot.writeFieldBegin('records', TType.LIST, 1)
       oprot.writeListBegin(TType.STRUCT, len(self.records))
-      for iter110 in self.records:
-        iter110.write(oprot)
+      for iter115 in self.records:
+        iter115.write(oprot)
       oprot.writeListEnd()
       oprot.writeFieldEnd()
     oprot.writeFieldStop()

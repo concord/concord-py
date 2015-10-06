@@ -1,1 +1,1 @@
-__all__ = ['ttypes', 'constants', 'BoltManagerService', 'MutableEphemeralStateService', 'ComputationService', 'ComputationTestService', 'BoltProxyService', 'BoltSchedulerService', 'BoltMetricsService', 'BoltTraceAggregatorService']
+__all__ = ['ttypes', 'constants', 'BoltManagerService', 'MutableEphemeralStateService', 'ComputationService', 'BoltProxyService', 'BoltSchedulerService', 'BoltMetricsService', 'BoltTraceAggregatorService']

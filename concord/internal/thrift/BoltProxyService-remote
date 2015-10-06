@@ -24,8 +24,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
   print('Usage: ' + sys.argv[0] + ' [-h host[:port]] [-u url] [-f[ramed]] [-s[sl]] function [arg1 [arg2...]]')
   print('')
   print('Functions:')
-  print('  bool registerRichStream(RichStream r)')
-  print('  bool deregisterRichStream(RichStream r)')
+  print('  void updateTopology(TopologyMetadata topology)')
   print('  void dispatchRecords( records)')
   print('  void updateSchedulerAddress(Endpoint e)')
   print('  void registerWithScheduler(ComputationMetadata meta)')
@@ -87,17 +86,11 @@ protocol = TBinaryProtocol.TBinaryProtocol(transport)
 client = BoltProxyService.Client(protocol)
 transport.open()
 
-if cmd == 'registerRichStream':
+if cmd == 'updateTopology':
   if len(args) != 1:
-    print('registerRichStream requires 1 args')
+    print('updateTopology requires 1 args')
     sys.exit(1)
-  pp.pprint(client.registerRichStream(eval(args[0]),))
-
-elif cmd == 'deregisterRichStream':
-  if len(args) != 1:
-    print('deregisterRichStream requires 1 args')
-    sys.exit(1)
-  pp.pprint(client.deregisterRichStream(eval(args[0]),))
+  pp.pprint(client.updateTopology(eval(args[0]),))
 
 elif cmd == 'dispatchRecords':
   if len(args) != 1:

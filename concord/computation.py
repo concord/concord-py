@@ -169,16 +169,17 @@ class ComputationServiceWrapper(ComputationService.Iface):
 
         return transaction
 
-    def boltProcessRecord(self, record):
-        ctx, transaction = new_computation_context()
-        try:
-            self.handler.process_record(ctx, record)
-        except Exception as e:
-            ccord_logger.exception(e)
-            ccord_logger.critical("Exception in process_record")
-            sys.exit(1)
-
-        return transaction
+    def boltProcessRecords(self, records):
+        def txfn(record):
+            ctx, transaction = new_computation_context()
+            try:
+                self.handler.process_record(ctx, record)
+            except Exception as e:
+                ccord_logger.exception(e)
+                ccord_logger.critical("Exception in process_record")
+                sys.exit(1)
+            return transaction
+        return map(txfn, records)
 
     def boltProcessTimer(self, key, time):
         ctx, transaction = new_computation_context()

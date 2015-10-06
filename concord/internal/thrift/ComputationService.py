@@ -21,10 +21,10 @@ class Iface:
   def init(self):
     pass
 
-  def boltProcessRecord(self, record):
+  def boltProcessRecords(self, records):
     """
     Parameters:
-     - record
+     - records
     """
     pass
 
@@ -75,23 +75,23 @@ class Client(Iface):
       raise result.e
     raise TApplicationException(TApplicationException.MISSING_RESULT, "init failed: unknown result");
 
-  def boltProcessRecord(self, record):
+  def boltProcessRecords(self, records):
     """
     Parameters:
-     - record
+     - records
     """
-    self.send_boltProcessRecord(record)
-    return self.recv_boltProcessRecord()
+    self.send_boltProcessRecords(records)
+    return self.recv_boltProcessRecords()
 
-  def send_boltProcessRecord(self, record):
-    self._oprot.writeMessageBegin('boltProcessRecord', TMessageType.CALL, self._seqid)
-    args = boltProcessRecord_args()
-    args.record = record
+  def send_boltProcessRecords(self, records):
+    self._oprot.writeMessageBegin('boltProcessRecords', TMessageType.CALL, self._seqid)
+    args = boltProcessRecords_args()
+    args.records = records
     args.write(self._oprot)
     self._oprot.writeMessageEnd()
     self._oprot.trans.flush()
 
-  def recv_boltProcessRecord(self):
+  def recv_boltProcessRecords(self):
     iprot = self._iprot
     (fname, mtype, rseqid) = iprot.readMessageBegin()
     if mtype == TMessageType.EXCEPTION:
@@ -99,14 +99,14 @@ class Client(Iface):
       x.read(iprot)
       iprot.readMessageEnd()
       raise x
-    result = boltProcessRecord_result()
+    result = boltProcessRecords_result()
     result.read(iprot)
     iprot.readMessageEnd()
     if result.success is not None:
       return result.success
     if result.e is not None:
       raise result.e
-    raise TApplicationException(TApplicationException.MISSING_RESULT, "boltProcessRecord failed: unknown result");
+    raise TApplicationException(TApplicationException.MISSING_RESULT, "boltProcessRecords failed: unknown result");
 
   def boltProcessTimer(self, key, time):
     """
@@ -177,7 +177,7 @@ class Processor(Iface, TProcessor):
     self._handler = handler
     self._processMap = {}
     self._processMap["init"] = Processor.process_init
-    self._processMap["boltProcessRecord"] = Processor.process_boltProcessRecord
+    self._processMap["boltProcessRecords"] = Processor.process_boltProcessRecords
     self._processMap["boltProcessTimer"] = Processor.process_boltProcessTimer
     self._processMap["boltMetadata"] = Processor.process_boltMetadata
 
@@ -210,16 +210,16 @@ class Processor(Iface, TProcessor):
     oprot.writeMessageEnd()
     oprot.trans.flush()
 
-  def process_boltProcessRecord(self, seqid, iprot, oprot):
-    args = boltProcessRecord_args()
+  def process_boltProcessRecords(self, seqid, iprot, oprot):
+    args = boltProcessRecords_args()
     args.read(iprot)
     iprot.readMessageEnd()
-    result = boltProcessRecord_result()
+    result = boltProcessRecords_result()
     try:
-      result.success = self._handler.boltProcessRecord(args.record)
+      result.success = self._handler.boltProcessRecords(args.records)
     except BoltError, e:
       result.e = e
-    oprot.writeMessageBegin("boltProcessRecord", TMessageType.REPLY, seqid)
+    oprot.writeMessageBegin("boltProcessRecords", TMessageType.REPLY, seqid)
     result.write(oprot)
     oprot.writeMessageEnd()
     oprot.trans.flush()
@@ -380,19 +380,19 @@ class init_result:
   def __ne__(self, other):
     return not (self == other)
 
-class boltProcessRecord_args:
+class boltProcessRecords_args:
   """
   Attributes:
-   - record
+   - records
   """
 
   thrift_spec = (
     None, # 0
-    (1, TType.STRUCT, 'record', (Record, Record.thrift_spec), None, ), # 1
+    (1, TType.LIST, 'records', (TType.STRUCT,(Record, Record.thrift_spec)), None, ), # 1
   )
 
-  def __init__(self, record=None,):
-    self.record = record
+  def __init__(self, records=None,):
+    self.records = records
 
   def read(self, iprot):
     if iprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None and fastbinary is not None:
@@ -404,9 +404,14 @@ class boltProcessRecord_args:
       if ftype == TType.STOP:
         break
       if fid == 1:
-        if ftype == TType.STRUCT:
-          self.record = Record()
-          self.record.read(iprot)
+        if ftype == TType.LIST:
+          self.records = []
+          (_etype98, _size95) = iprot.readListBegin()
+          for _i99 in xrange(_size95):
+            _elem100 = Record()
+            _elem100.read(iprot)
+            self.records.append(_elem100)
+          iprot.readListEnd()
         else:
           iprot.skip(ftype)
       else:
@@ -418,10 +423,13 @@ class boltProcessRecord_args:
     if oprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and self.thrift_spec is not None and fastbinary is not None:
       oprot.trans.write(fastbinary.encode_binary(self, (self.__class__, self.thrift_spec)))
       return
-    oprot.writeStructBegin('boltProcessRecord_args')
-    if self.record is not None:
-      oprot.writeFieldBegin('record', TType.STRUCT, 1)
-      self.record.write(oprot)
+    oprot.writeStructBegin('boltProcessRecords_args')
+    if self.records is not None:
+      oprot.writeFieldBegin('records', TType.LIST, 1)
+      oprot.writeListBegin(TType.STRUCT, len(self.records))
+      for iter101 in self.records:
+        iter101.write(oprot)
+      oprot.writeListEnd()
       oprot.writeFieldEnd()
     oprot.writeFieldStop()
     oprot.writeStructEnd()
@@ -432,7 +440,7 @@ class boltProcessRecord_args:
 
   def __hash__(self):
     value = 17
-    value = (value * 31) ^ hash(self.record)
+    value = (value * 31) ^ hash(self.records)
     return value
 
   def __repr__(self):
@@ -446,7 +454,7 @@ class boltProcessRecord_args:
   def __ne__(self, other):
     return not (self == other)
 
-class boltProcessRecord_result:
+class boltProcessRecords_result:
   """
   Attributes:
    - success
@@ -454,7 +462,7 @@ class boltProcessRecord_result:
   """
 
   thrift_spec = (
-    (0, TType.STRUCT, 'success', (ComputationTx, ComputationTx.thrift_spec), None, ), # 0
+    (0, TType.LIST, 'success', (TType.STRUCT,(ComputationTx, ComputationTx.thrift_spec)), None, ), # 0
     (1, TType.STRUCT, 'e', (BoltError, BoltError.thrift_spec), None, ), # 1
   )
 
@@ -472,9 +480,14 @@ class boltProcessRecord_result:
       if ftype == TType.STOP:
         break
       if fid == 0:
-        if ftype == TType.STRUCT:
-          self.success = ComputationTx()
-          self.success.read(iprot)
+        if ftype == TType.LIST:
+          self.success = []
+          (_etype105, _size102) = iprot.readListBegin()
+          for _i106 in xrange(_size102):
+            _elem107 = ComputationTx()
+            _elem107.read(iprot)
+            self.success.append(_elem107)
+          iprot.readListEnd()
         else:
           iprot.skip(ftype)
       elif fid == 1:
@@ -492,10 +505,13 @@ class boltProcessRecord_result:
     if oprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and self.thrift_spec is not None and fastbinary is not None:
       oprot.trans.write(fastbinary.encode_binary(self, (self.__class__, self.thrift_spec)))
       return
-    oprot.writeStructBegin('boltProcessRecord_result')
+    oprot.writeStructBegin('boltProcessRecords_result')
     if self.success is not None:
-      oprot.writeFieldBegin('success', TType.STRUCT, 0)
-      self.success.write(oprot)
+      oprot.writeFieldBegin('success', TType.LIST, 0)
+      oprot.writeListBegin(TType.STRUCT, len(self.success))
+      for iter108 in self.success:
+        iter108.write(oprot)
+      oprot.writeListEnd()
       oprot.writeFieldEnd()
     if self.e is not None:
       oprot.writeFieldBegin('e', TType.STRUCT, 1)
