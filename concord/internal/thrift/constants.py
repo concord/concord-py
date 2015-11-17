@@ -27,4 +27,3 @@ kQueueStreamNameToIdMapTopic = "stream_map"
 kMessageQueueWatermarkTopic = "watermarks"
 kMessageQueueBatchSize = 1024
 kMessageQueueTTL = 21600
-kBoltTraceHeader = "bolt_traces"

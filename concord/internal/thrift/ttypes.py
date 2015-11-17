@@ -99,26 +99,6 @@ class RecordFlags:
     "FRAMEWORK_RECORD": 2,
   }
 
-class AnnotationType:
-  CLIENT_SEND = 0
-  CLIENT_RECV = 1
-  SERVER_SEND = 2
-  SERVER_RECV = 3
-
-  _VALUES_TO_NAMES = {
-    0: "CLIENT_SEND",
-    1: "CLIENT_RECV",
-    2: "SERVER_SEND",
-    3: "SERVER_RECV",
-  }
-
-  _NAMES_TO_VALUES = {
-    "CLIENT_SEND": 0,
-    "CLIENT_RECV": 1,
-    "SERVER_SEND": 2,
-    "SERVER_RECV": 3,
-  }
-
 
 class BoltError(TException):
   """
@@ -224,7 +204,7 @@ class Endpoint:
   thrift_spec = (
     None, # 0
     (1, TType.STRING, 'ip', None, None, ), # 1
-    (2, TType.I16, 'port', None, None, ), # 2
+    (2, TType.I32, 'port', None, None, ), # 2
   )
 
   def __init__(self, ip=None, port=None,):
@@ -246,8 +226,8 @@ class Endpoint:
         else:
           iprot.skip(ftype)
       elif fid == 2:
-        if ftype == TType.I16:
-          self.port = iprot.readI16();
+        if ftype == TType.I32:
+          self.port = iprot.readI32();
         else:
           iprot.skip(ftype)
       else:
@@ -265,8 +245,8 @@ class Endpoint:
       oprot.writeString(self.ip.encode('utf-8'))
       oprot.writeFieldEnd()
     if self.port is not None:
-      oprot.writeFieldBegin('port', TType.I16, 2)
-      oprot.writeI16(self.port)
+      oprot.writeFieldBegin('port', TType.I32, 2)
+      oprot.writeI32(self.port)
       oprot.writeFieldEnd()
     oprot.writeFieldStop()
     oprot.writeStructEnd()
@@ -514,7 +494,6 @@ class ExecutorTaskInfoHelper:
    - scheduler
    - proxy
    - client
-   - traceAggregator
    - execName
    - folder
    - computationAliasName
@@ -531,23 +510,21 @@ class ExecutorTaskInfoHelper:
     (4, TType.STRUCT, 'scheduler', (Endpoint, Endpoint.thrift_spec), None, ), # 4
     (5, TType.STRUCT, 'proxy', (Endpoint, Endpoint.thrift_spec), None, ), # 5
     (6, TType.STRUCT, 'client', (Endpoint, Endpoint.thrift_spec), None, ), # 6
-    (7, TType.STRUCT, 'traceAggregator', (Endpoint, Endpoint.thrift_spec), None, ), # 7
-    (8, TType.STRING, 'execName', None, None, ), # 8
-    (9, TType.STRING, 'folder', None, None, ), # 9
-    (10, TType.STRING, 'computationAliasName', None, None, ), # 10
-    (11, TType.LIST, 'clientArguments', (TType.STRING,None), None, ), # 11
-    (12, TType.LIST, 'environmentExtra', (TType.STRING,None), None, ), # 12
-    (13, TType.STRING, 'dockerContainer', None, None, ), # 13
+    (7, TType.STRING, 'execName', None, None, ), # 7
+    (8, TType.STRING, 'folder', None, None, ), # 8
+    (9, TType.STRING, 'computationAliasName', None, None, ), # 9
+    (10, TType.LIST, 'clientArguments', (TType.STRING,None), None, ), # 10
+    (11, TType.LIST, 'environmentExtra', (TType.STRING,None), None, ), # 11
+    (12, TType.STRING, 'dockerContainer', None, None, ), # 12
   )
 
-  def __init__(self, frameworkLoggingLevel=thrift_spec[1][4], user=None, frameworkVModule=None, scheduler=None, proxy=None, client=None, traceAggregator=None, execName=None, folder=None, computationAliasName=None, clientArguments=None, environmentExtra=None, dockerContainer=None,):
+  def __init__(self, frameworkLoggingLevel=thrift_spec[1][4], user=None, frameworkVModule=None, scheduler=None, proxy=None, client=None, execName=None, folder=None, computationAliasName=None, clientArguments=None, environmentExtra=None, dockerContainer=None,):
     self.frameworkLoggingLevel = frameworkLoggingLevel
     self.user = user
     self.frameworkVModule = frameworkVModule
     self.scheduler = scheduler
     self.proxy = proxy
     self.client = client
-    self.traceAggregator = traceAggregator
     self.execName = execName
     self.folder = folder
     self.computationAliasName = computationAliasName
@@ -598,27 +575,21 @@ class ExecutorTaskInfoHelper:
         else:
           iprot.skip(ftype)
       elif fid == 7:
-        if ftype == TType.STRUCT:
-          self.traceAggregator = Endpoint()
-          self.traceAggregator.read(iprot)
-        else:
-          iprot.skip(ftype)
-      elif fid == 8:
         if ftype == TType.STRING:
           self.execName = iprot.readString().decode('utf-8')
         else:
           iprot.skip(ftype)
-      elif fid == 9:
+      elif fid == 8:
         if ftype == TType.STRING:
           self.folder = iprot.readString().decode('utf-8')
         else:
           iprot.skip(ftype)
-      elif fid == 10:
+      elif fid == 9:
         if ftype == TType.STRING:
           self.computationAliasName = iprot.readString().decode('utf-8')
         else:
           iprot.skip(ftype)
-      elif fid == 11:
+      elif fid == 10:
         if ftype == TType.LIST:
           self.clientArguments = []
           (_etype17, _size14) = iprot.readListBegin()
@@ -628,7 +599,7 @@ class ExecutorTaskInfoHelper:
           iprot.readListEnd()
         else:
           iprot.skip(ftype)
-      elif fid == 12:
+      elif fid == 11:
         if ftype == TType.LIST:
           self.environmentExtra = []
           (_etype23, _size20) = iprot.readListBegin()
@@ -638,7 +609,7 @@ class ExecutorTaskInfoHelper:
           iprot.readListEnd()
         else:
           iprot.skip(ftype)
-      elif fid == 13:
+      elif fid == 12:
         if ftype == TType.STRING:
           self.dockerContainer = iprot.readString().decode('utf-8')
         else:
@@ -677,38 +648,34 @@ class ExecutorTaskInfoHelper:
       oprot.writeFieldBegin('client', TType.STRUCT, 6)
       self.client.write(oprot)
       oprot.writeFieldEnd()
-    if self.traceAggregator is not None:
-      oprot.writeFieldBegin('traceAggregator', TType.STRUCT, 7)
-      self.traceAggregator.write(oprot)
-      oprot.writeFieldEnd()
     if self.execName is not None:
-      oprot.writeFieldBegin('execName', TType.STRING, 8)
+      oprot.writeFieldBegin('execName', TType.STRING, 7)
       oprot.writeString(self.execName.encode('utf-8'))
       oprot.writeFieldEnd()
     if self.folder is not None:
-      oprot.writeFieldBegin('folder', TType.STRING, 9)
+      oprot.writeFieldBegin('folder', TType.STRING, 8)
       oprot.writeString(self.folder.encode('utf-8'))
       oprot.writeFieldEnd()
     if self.computationAliasName is not None:
-      oprot.writeFieldBegin('computationAliasName', TType.STRING, 10)
+      oprot.writeFieldBegin('computationAliasName', TType.STRING, 9)
       oprot.writeString(self.computationAliasName.encode('utf-8'))
       oprot.writeFieldEnd()
     if self.clientArguments is not None:
-      oprot.writeFieldBegin('clientArguments', TType.LIST, 11)
+      oprot.writeFieldBegin('clientArguments', TType.LIST, 10)
       oprot.writeListBegin(TType.STRING, len(self.clientArguments))
       for iter26 in self.clientArguments:
         oprot.writeString(iter26.encode('utf-8'))
       oprot.writeListEnd()
       oprot.writeFieldEnd()
     if self.environmentExtra is not None:
-      oprot.writeFieldBegin('environmentExtra', TType.LIST, 12)
+      oprot.writeFieldBegin('environmentExtra', TType.LIST, 11)
       oprot.writeListBegin(TType.STRING, len(self.environmentExtra))
       for iter27 in self.environmentExtra:
         oprot.writeString(iter27.encode('utf-8'))
       oprot.writeListEnd()
       oprot.writeFieldEnd()
     if self.dockerContainer is not None:
-      oprot.writeFieldBegin('dockerContainer', TType.STRING, 13)
+      oprot.writeFieldBegin('dockerContainer', TType.STRING, 12)
       oprot.writeString(self.dockerContainer.encode('utf-8'))
       oprot.writeFieldEnd()
     oprot.writeFieldStop()
@@ -726,7 +693,6 @@ class ExecutorTaskInfoHelper:
     value = (value * 31) ^ hash(self.scheduler)
     value = (value * 31) ^ hash(self.proxy)
     value = (value * 31) ^ hash(self.client)
-    value = (value * 31) ^ hash(self.traceAggregator)
     value = (value * 31) ^ hash(self.execName)
     value = (value * 31) ^ hash(self.folder)
     value = (value * 31) ^ hash(self.computationAliasName)
@@ -1105,6 +1071,7 @@ class TopologyMetadata:
    - version
    - computations
    - frameworkID
+   - kafkaBrokerList
   """
 
   thrift_spec = (
@@ -1112,12 +1079,14 @@ class TopologyMetadata:
     (1, TType.I32, 'version', None, 0, ), # 1
     (2, TType.MAP, 'computations', (TType.STRING,None,TType.STRUCT,(PhysicalComputationLayout, PhysicalComputationLayout.thrift_spec)), None, ), # 2
     (3, TType.STRING, 'frameworkID', None, None, ), # 3
+    (4, TType.STRING, 'kafkaBrokerList', None, None, ), # 4
   )
 
-  def __init__(self, version=thrift_spec[1][4], computations=None, frameworkID=None,):
+  def __init__(self, version=thrift_spec[1][4], computations=None, frameworkID=None, kafkaBrokerList=None,):
     self.version = version
     self.computations = computations
     self.frameworkID = frameworkID
+    self.kafkaBrokerList = kafkaBrokerList
 
   def read(self, iprot):
     if iprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None and fastbinary is not None:
@@ -1150,6 +1119,11 @@ class TopologyMetadata:
           self.frameworkID = iprot.readString().decode('utf-8')
         else:
           iprot.skip(ftype)
+      elif fid == 4:
+        if ftype == TType.STRING:
+          self.kafkaBrokerList = iprot.readString().decode('utf-8')
+        else:
+          iprot.skip(ftype)
       else:
         iprot.skip(ftype)
       iprot.readFieldEnd()
@@ -1176,6 +1150,10 @@ class TopologyMetadata:
       oprot.writeFieldBegin('frameworkID', TType.STRING, 3)
       oprot.writeString(self.frameworkID.encode('utf-8'))
       oprot.writeFieldEnd()
+    if self.kafkaBrokerList is not None:
+      oprot.writeFieldBegin('kafkaBrokerList', TType.STRING, 4)
+      oprot.writeString(self.kafkaBrokerList.encode('utf-8'))
+      oprot.writeFieldEnd()
     oprot.writeFieldStop()
     oprot.writeStructEnd()
 
@@ -1188,6 +1166,7 @@ class TopologyMetadata:
     value = (value * 31) ^ hash(self.version)
     value = (value * 31) ^ hash(self.computations)
     value = (value * 31) ^ hash(self.frameworkID)
+    value = (value * 31) ^ hash(self.kafkaBrokerList)
     return value
 
   def __repr__(self):
@@ -1791,337 +1770,6 @@ class BoltComputationRequest:
     value = (value * 31) ^ hash(self.taskHelper)
     value = (value * 31) ^ hash(self.forceUpdateBinary)
     value = (value * 31) ^ hash(self.slug)
-    return value
-
-  def __repr__(self):
-    L = ['%s=%r' % (key, value)
-      for key, value in self.__dict__.iteritems()]
-    return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
-
-  def __eq__(self, other):
-    return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
-
-  def __ne__(self, other):
-    return not (self == other)
-
-class Annotation:
-  """
-  Attributes:
-   - timestamp
-   - type
-   - key
-   - value
-   - host
-  """
-
-  thrift_spec = (
-    None, # 0
-    (1, TType.I64, 'timestamp', None, None, ), # 1
-    (2, TType.I32, 'type', None, None, ), # 2
-    (3, TType.STRING, 'key', None, None, ), # 3
-    (4, TType.STRING, 'value', None, None, ), # 4
-    (5, TType.STRUCT, 'host', (Endpoint, Endpoint.thrift_spec), None, ), # 5
-  )
-
-  def __init__(self, timestamp=None, type=None, key=None, value=None, host=None,):
-    self.timestamp = timestamp
-    self.type = type
-    self.key = key
-    self.value = value
-    self.host = host
-
-  def read(self, iprot):
-    if iprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None and fastbinary is not None:
-      fastbinary.decode_binary(self, iprot.trans, (self.__class__, self.thrift_spec))
-      return
-    iprot.readStructBegin()
-    while True:
-      (fname, ftype, fid) = iprot.readFieldBegin()
-      if ftype == TType.STOP:
-        break
-      if fid == 1:
-        if ftype == TType.I64:
-          self.timestamp = iprot.readI64();
-        else:
-          iprot.skip(ftype)
-      elif fid == 2:
-        if ftype == TType.I32:
-          self.type = iprot.readI32();
-        else:
-          iprot.skip(ftype)
-      elif fid == 3:
-        if ftype == TType.STRING:
-          self.key = iprot.readString().decode('utf-8')
-        else:
-          iprot.skip(ftype)
-      elif fid == 4:
-        if ftype == TType.STRING:
-          self.value = iprot.readString();
-        else:
-          iprot.skip(ftype)
-      elif fid == 5:
-        if ftype == TType.STRUCT:
-          self.host = Endpoint()
-          self.host.read(iprot)
-        else:
-          iprot.skip(ftype)
-      else:
-        iprot.skip(ftype)
-      iprot.readFieldEnd()
-    iprot.readStructEnd()
-
-  def write(self, oprot):
-    if oprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and self.thrift_spec is not None and fastbinary is not None:
-      oprot.trans.write(fastbinary.encode_binary(self, (self.__class__, self.thrift_spec)))
-      return
-    oprot.writeStructBegin('Annotation')
-    if self.timestamp is not None:
-      oprot.writeFieldBegin('timestamp', TType.I64, 1)
-      oprot.writeI64(self.timestamp)
-      oprot.writeFieldEnd()
-    if self.type is not None:
-      oprot.writeFieldBegin('type', TType.I32, 2)
-      oprot.writeI32(self.type)
-      oprot.writeFieldEnd()
-    if self.key is not None:
-      oprot.writeFieldBegin('key', TType.STRING, 3)
-      oprot.writeString(self.key.encode('utf-8'))
-      oprot.writeFieldEnd()
-    if self.value is not None:
-      oprot.writeFieldBegin('value', TType.STRING, 4)
-      oprot.writeString(self.value)
-      oprot.writeFieldEnd()
-    if self.host is not None:
-      oprot.writeFieldBegin('host', TType.STRUCT, 5)
-      self.host.write(oprot)
-      oprot.writeFieldEnd()
-    oprot.writeFieldStop()
-    oprot.writeStructEnd()
-
-  def validate(self):
-    return
-
-
-  def __hash__(self):
-    value = 17
-    value = (value * 31) ^ hash(self.timestamp)
-    value = (value * 31) ^ hash(self.type)
-    value = (value * 31) ^ hash(self.key)
-    value = (value * 31) ^ hash(self.value)
-    value = (value * 31) ^ hash(self.host)
-    return value
-
-  def __repr__(self):
-    L = ['%s=%r' % (key, value)
-      for key, value in self.__dict__.iteritems()]
-    return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
-
-  def __eq__(self, other):
-    return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
-
-  def __ne__(self, other):
-    return not (self == other)
-
-class Span:
-  """
-  Attributes:
-   - traceId
-   - id
-   - parentId
-   - name
-   - annotations
-  """
-
-  thrift_spec = (
-    None, # 0
-    (1, TType.I64, 'traceId', None, None, ), # 1
-    (2, TType.I64, 'id', None, None, ), # 2
-    (3, TType.I64, 'parentId', None, None, ), # 3
-    (4, TType.STRING, 'name', None, None, ), # 4
-    (5, TType.LIST, 'annotations', (TType.STRUCT,(Annotation, Annotation.thrift_spec)), None, ), # 5
-  )
-
-  def __init__(self, traceId=None, id=None, parentId=None, name=None, annotations=None,):
-    self.traceId = traceId
-    self.id = id
-    self.parentId = parentId
-    self.name = name
-    self.annotations = annotations
-
-  def read(self, iprot):
-    if iprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None and fastbinary is not None:
-      fastbinary.decode_binary(self, iprot.trans, (self.__class__, self.thrift_spec))
-      return
-    iprot.readStructBegin()
-    while True:
-      (fname, ftype, fid) = iprot.readFieldBegin()
-      if ftype == TType.STOP:
-        break
-      if fid == 1:
-        if ftype == TType.I64:
-          self.traceId = iprot.readI64();
-        else:
-          iprot.skip(ftype)
-      elif fid == 2:
-        if ftype == TType.I64:
-          self.id = iprot.readI64();
-        else:
-          iprot.skip(ftype)
-      elif fid == 3:
-        if ftype == TType.I64:
-          self.parentId = iprot.readI64();
-        else:
-          iprot.skip(ftype)
-      elif fid == 4:
-        if ftype == TType.STRING:
-          self.name = iprot.readString().decode('utf-8')
-        else:
-          iprot.skip(ftype)
-      elif fid == 5:
-        if ftype == TType.LIST:
-          self.annotations = []
-          (_etype84, _size81) = iprot.readListBegin()
-          for _i85 in xrange(_size81):
-            _elem86 = Annotation()
-            _elem86.read(iprot)
-            self.annotations.append(_elem86)
-          iprot.readListEnd()
-        else:
-          iprot.skip(ftype)
-      else:
-        iprot.skip(ftype)
-      iprot.readFieldEnd()
-    iprot.readStructEnd()
-
-  def write(self, oprot):
-    if oprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and self.thrift_spec is not None and fastbinary is not None:
-      oprot.trans.write(fastbinary.encode_binary(self, (self.__class__, self.thrift_spec)))
-      return
-    oprot.writeStructBegin('Span')
-    if self.traceId is not None:
-      oprot.writeFieldBegin('traceId', TType.I64, 1)
-      oprot.writeI64(self.traceId)
-      oprot.writeFieldEnd()
-    if self.id is not None:
-      oprot.writeFieldBegin('id', TType.I64, 2)
-      oprot.writeI64(self.id)
-      oprot.writeFieldEnd()
-    if self.parentId is not None:
-      oprot.writeFieldBegin('parentId', TType.I64, 3)
-      oprot.writeI64(self.parentId)
-      oprot.writeFieldEnd()
-    if self.name is not None:
-      oprot.writeFieldBegin('name', TType.STRING, 4)
-      oprot.writeString(self.name.encode('utf-8'))
-      oprot.writeFieldEnd()
-    if self.annotations is not None:
-      oprot.writeFieldBegin('annotations', TType.LIST, 5)
-      oprot.writeListBegin(TType.STRUCT, len(self.annotations))
-      for iter87 in self.annotations:
-        iter87.write(oprot)
-      oprot.writeListEnd()
-      oprot.writeFieldEnd()
-    oprot.writeFieldStop()
-    oprot.writeStructEnd()
-
-  def validate(self):
-    return
-
-
-  def __hash__(self):
-    value = 17
-    value = (value * 31) ^ hash(self.traceId)
-    value = (value * 31) ^ hash(self.id)
-    value = (value * 31) ^ hash(self.parentId)
-    value = (value * 31) ^ hash(self.name)
-    value = (value * 31) ^ hash(self.annotations)
-    return value
-
-  def __repr__(self):
-    L = ['%s=%r' % (key, value)
-      for key, value in self.__dict__.iteritems()]
-    return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
-
-  def __eq__(self, other):
-    return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
-
-  def __ne__(self, other):
-    return not (self == other)
-
-class Trace:
-  """
-  Attributes:
-   - id
-   - spans
-  """
-
-  thrift_spec = (
-    None, # 0
-    (1, TType.I64, 'id', None, None, ), # 1
-    (2, TType.LIST, 'spans', (TType.STRUCT,(Span, Span.thrift_spec)), None, ), # 2
-  )
-
-  def __init__(self, id=None, spans=None,):
-    self.id = id
-    self.spans = spans
-
-  def read(self, iprot):
-    if iprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None and fastbinary is not None:
-      fastbinary.decode_binary(self, iprot.trans, (self.__class__, self.thrift_spec))
-      return
-    iprot.readStructBegin()
-    while True:
-      (fname, ftype, fid) = iprot.readFieldBegin()
-      if ftype == TType.STOP:
-        break
-      if fid == 1:
-        if ftype == TType.I64:
-          self.id = iprot.readI64();
-        else:
-          iprot.skip(ftype)
-      elif fid == 2:
-        if ftype == TType.LIST:
-          self.spans = []
-          (_etype91, _size88) = iprot.readListBegin()
-          for _i92 in xrange(_size88):
-            _elem93 = Span()
-            _elem93.read(iprot)
-            self.spans.append(_elem93)
-          iprot.readListEnd()
-        else:
-          iprot.skip(ftype)
-      else:
-        iprot.skip(ftype)
-      iprot.readFieldEnd()
-    iprot.readStructEnd()
-
-  def write(self, oprot):
-    if oprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and self.thrift_spec is not None and fastbinary is not None:
-      oprot.trans.write(fastbinary.encode_binary(self, (self.__class__, self.thrift_spec)))
-      return
-    oprot.writeStructBegin('Trace')
-    if self.id is not None:
-      oprot.writeFieldBegin('id', TType.I64, 1)
-      oprot.writeI64(self.id)
-      oprot.writeFieldEnd()
-    if self.spans is not None:
-      oprot.writeFieldBegin('spans', TType.LIST, 2)
-      oprot.writeListBegin(TType.STRUCT, len(self.spans))
-      for iter94 in self.spans:
-        iter94.write(oprot)
-      oprot.writeListEnd()
-      oprot.writeFieldEnd()
-    oprot.writeFieldStop()
-    oprot.writeStructEnd()
-
-  def validate(self):
-    return
-
-
-  def __hash__(self):
-    value = 17
-    value = (value * 31) ^ hash(self.id)
-    value = (value * 31) ^ hash(self.spans)
     return value
 
   def __repr__(self):
