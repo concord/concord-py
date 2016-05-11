@@ -26,13 +26,6 @@ class Iface(concord.internal.thrift.MutableEphemeralStateService.Iface):
     """
     pass
 
-  def dispatchRecords(self, records):
-    """
-    Parameters:
-     - records
-    """
-    pass
-
   def updateSchedulerAddress(self, e):
     """
     Parameters:
@@ -77,37 +70,6 @@ class Client(concord.internal.thrift.MutableEphemeralStateService.Client, Iface)
       iprot.readMessageEnd()
       raise x
     result = updateTopology_result()
-    result.read(iprot)
-    iprot.readMessageEnd()
-    if result.e is not None:
-      raise result.e
-    return
-
-  def dispatchRecords(self, records):
-    """
-    Parameters:
-     - records
-    """
-    self.send_dispatchRecords(records)
-    self.recv_dispatchRecords()
-
-  def send_dispatchRecords(self, records):
-    self._oprot.writeMessageBegin('dispatchRecords', TMessageType.CALL, self._seqid)
-    args = dispatchRecords_args()
-    args.records = records
-    args.write(self._oprot)
-    self._oprot.writeMessageEnd()
-    self._oprot.trans.flush()
-
-  def recv_dispatchRecords(self):
-    iprot = self._iprot
-    (fname, mtype, rseqid) = iprot.readMessageBegin()
-    if mtype == TMessageType.EXCEPTION:
-      x = TApplicationException()
-      x.read(iprot)
-      iprot.readMessageEnd()
-      raise x
-    result = dispatchRecords_result()
     result.read(iprot)
     iprot.readMessageEnd()
     if result.e is not None:
@@ -164,7 +126,6 @@ class Processor(concord.internal.thrift.MutableEphemeralStateService.Processor, 
   def __init__(self, handler):
     concord.internal.thrift.MutableEphemeralStateService.Processor.__init__(self, handler)
     self._processMap["updateTopology"] = Processor.process_updateTopology
-    self._processMap["dispatchRecords"] = Processor.process_dispatchRecords
     self._processMap["updateSchedulerAddress"] = Processor.process_updateSchedulerAddress
     self._processMap["registerWithScheduler"] = Processor.process_registerWithScheduler
 
@@ -193,20 +154,6 @@ class Processor(concord.internal.thrift.MutableEphemeralStateService.Processor, 
     except BoltError, e:
       result.e = e
     oprot.writeMessageBegin("updateTopology", TMessageType.REPLY, seqid)
-    result.write(oprot)
-    oprot.writeMessageEnd()
-    oprot.trans.flush()
-
-  def process_dispatchRecords(self, seqid, iprot, oprot):
-    args = dispatchRecords_args()
-    args.read(iprot)
-    iprot.readMessageEnd()
-    result = dispatchRecords_result()
-    try:
-      self._handler.dispatchRecords(args.records)
-    except BoltError, e:
-      result.e = e
-    oprot.writeMessageBegin("dispatchRecords", TMessageType.REPLY, seqid)
     result.write(oprot)
     oprot.writeMessageEnd()
     oprot.trans.flush()
@@ -340,146 +287,6 @@ class updateTopology_result:
       oprot.trans.write(fastbinary.encode_binary(self, (self.__class__, self.thrift_spec)))
       return
     oprot.writeStructBegin('updateTopology_result')
-    if self.e is not None:
-      oprot.writeFieldBegin('e', TType.STRUCT, 1)
-      self.e.write(oprot)
-      oprot.writeFieldEnd()
-    oprot.writeFieldStop()
-    oprot.writeStructEnd()
-
-  def validate(self):
-    return
-
-
-  def __hash__(self):
-    value = 17
-    value = (value * 31) ^ hash(self.e)
-    return value
-
-  def __repr__(self):
-    L = ['%s=%r' % (key, value)
-      for key, value in self.__dict__.iteritems()]
-    return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
-
-  def __eq__(self, other):
-    return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
-
-  def __ne__(self, other):
-    return not (self == other)
-
-class dispatchRecords_args:
-  """
-  Attributes:
-   - records
-  """
-
-  thrift_spec = (
-    None, # 0
-    (1, TType.LIST, 'records', (TType.STRUCT,(Record, Record.thrift_spec)), None, ), # 1
-  )
-
-  def __init__(self, records=None,):
-    self.records = records
-
-  def read(self, iprot):
-    if iprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None and fastbinary is not None:
-      fastbinary.decode_binary(self, iprot.trans, (self.__class__, self.thrift_spec))
-      return
-    iprot.readStructBegin()
-    while True:
-      (fname, ftype, fid) = iprot.readFieldBegin()
-      if ftype == TType.STOP:
-        break
-      if fid == 1:
-        if ftype == TType.LIST:
-          self.records = []
-          (_etype98, _size95) = iprot.readListBegin()
-          for _i99 in xrange(_size95):
-            _elem100 = Record()
-            _elem100.read(iprot)
-            self.records.append(_elem100)
-          iprot.readListEnd()
-        else:
-          iprot.skip(ftype)
-      else:
-        iprot.skip(ftype)
-      iprot.readFieldEnd()
-    iprot.readStructEnd()
-
-  def write(self, oprot):
-    if oprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and self.thrift_spec is not None and fastbinary is not None:
-      oprot.trans.write(fastbinary.encode_binary(self, (self.__class__, self.thrift_spec)))
-      return
-    oprot.writeStructBegin('dispatchRecords_args')
-    if self.records is not None:
-      oprot.writeFieldBegin('records', TType.LIST, 1)
-      oprot.writeListBegin(TType.STRUCT, len(self.records))
-      for iter101 in self.records:
-        iter101.write(oprot)
-      oprot.writeListEnd()
-      oprot.writeFieldEnd()
-    oprot.writeFieldStop()
-    oprot.writeStructEnd()
-
-  def validate(self):
-    return
-
-
-  def __hash__(self):
-    value = 17
-    value = (value * 31) ^ hash(self.records)
-    return value
-
-  def __repr__(self):
-    L = ['%s=%r' % (key, value)
-      for key, value in self.__dict__.iteritems()]
-    return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
-
-  def __eq__(self, other):
-    return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
-
-  def __ne__(self, other):
-    return not (self == other)
-
-class dispatchRecords_result:
-  """
-  Attributes:
-   - e
-  """
-
-  thrift_spec = (
-    None, # 0
-    (1, TType.STRUCT, 'e', (BoltError, BoltError.thrift_spec), None, ), # 1
-  )
-
-  def __init__(self, e=None,):
-    self.e = e
-
-  def read(self, iprot):
-    if iprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None and fastbinary is not None:
-      fastbinary.decode_binary(self, iprot.trans, (self.__class__, self.thrift_spec))
-      return
-    iprot.readStructBegin()
-    while True:
-      (fname, ftype, fid) = iprot.readFieldBegin()
-      if ftype == TType.STOP:
-        break
-      if fid == 1:
-        if ftype == TType.STRUCT:
-          self.e = BoltError()
-          self.e.read(iprot)
-        else:
-          iprot.skip(ftype)
-      else:
-        iprot.skip(ftype)
-      iprot.readFieldEnd()
-    iprot.readStructEnd()
-
-  def write(self, oprot):
-    if oprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and self.thrift_spec is not None and fastbinary is not None:
-      oprot.trans.write(fastbinary.encode_binary(self, (self.__class__, self.thrift_spec)))
-      return
-    oprot.writeStructBegin('dispatchRecords_result')
     if self.e is not None:
       oprot.writeFieldBegin('e', TType.STRUCT, 1)
       self.e.write(oprot)

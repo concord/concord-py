@@ -25,7 +25,6 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
   print('')
   print('Functions:')
   print('  void updateTopology(TopologyMetadata topology)')
-  print('  void dispatchRecords( records)')
   print('  void updateSchedulerAddress(Endpoint e)')
   print('  void registerWithScheduler(ComputationMetadata meta)')
   print('  void setState(string key, string value)')
@@ -91,12 +90,6 @@ if cmd == 'updateTopology':
     print('updateTopology requires 1 args')
     sys.exit(1)
   pp.pprint(client.updateTopology(eval(args[0]),))
-
-elif cmd == 'dispatchRecords':
-  if len(args) != 1:
-    print('dispatchRecords requires 1 args')
-    sys.exit(1)
-  pp.pprint(client.dispatchRecords(eval(args[0]),))
 
 elif cmd == 'updateSchedulerAddress':
   if len(args) != 1:

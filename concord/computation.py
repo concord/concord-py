@@ -3,8 +3,6 @@
     :synopsis: Computation class and helper function
 """
 
-
-
 import sys
 import os
 import types
@@ -125,6 +123,12 @@ class Computation:
         """
         pass
 
+    def destroy():
+        """Called right before the concord proxy is ready to shutdown.
+        Gives users an opportunity to perform some cleanup before the
+        process is killed."""
+        pass
+
     def process_record(ctx, record):
         """Process an incoming record on one of the computation's `istreams`.
         :param ctx: The computation context object provided by the system.
@@ -168,6 +172,14 @@ class ComputationServiceWrapper(ComputationService.Iface):
             sys.exit(1)
 
         return transaction
+
+    def destroy(self):
+        try:
+            self.handler.destroy()
+        except Exception as e:
+            ccord_logger.exception(e)
+            ccord_logger.critical("Exception in client destroy")
+            sys.exit(1)
 
     def boltProcessRecords(self, records):
         def txfn(record):
@@ -237,7 +249,7 @@ class ComputationServiceWrapper(ComputationService.Iface):
         host, port = self.proxy_address
         socket = TSocket.TSocket(host, port)
         transport = TTransport.TFramedTransport(socket)
-        protocol = TBinaryProtocol.TBinaryProtocol(transport)
+        protocol = TBinaryProtocol.TBinaryProtocolAccelerated(transport)
         client = BoltProxyService.Client(protocol)
         transport.open()
         return client
@@ -274,9 +286,9 @@ def serve_computation(handler):
         os.environ[kConcordEnvKeyClientProxyAddr])
 
     processor = ComputationService.Processor(comp)
-    transport = TSocket.TServerSocket(port=listen_port)
+    transport = TSocket.TServerSocket(host="127.0.0.1", port=listen_port)
     tfactory = TTransport.TFramedTransportFactory()
-    pfactory = TBinaryProtocol.TBinaryProtocolFactory()
+    pfactory = TBinaryProtocol.TBinaryProtocolAcceleratedFactory()
 
     try:
         ccord_logger.info("Starting python service port: %d", listen_port)
