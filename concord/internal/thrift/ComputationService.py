@@ -562,11 +562,11 @@ class boltProcessRecords_args:
       if fid == 1:
         if ftype == TType.LIST:
           self.records = []
-          (_etype84, _size81) = iprot.readListBegin()
-          for _i85 in xrange(_size81):
-            _elem86 = Record()
-            _elem86.read(iprot)
-            self.records.append(_elem86)
+          (_etype91, _size88) = iprot.readListBegin()
+          for _i92 in xrange(_size88):
+            _elem93 = Record()
+            _elem93.read(iprot)
+            self.records.append(_elem93)
           iprot.readListEnd()
         else:
           iprot.skip(ftype)
@@ -583,8 +583,8 @@ class boltProcessRecords_args:
     if self.records is not None:
       oprot.writeFieldBegin('records', TType.LIST, 1)
       oprot.writeListBegin(TType.STRUCT, len(self.records))
-      for iter87 in self.records:
-        iter87.write(oprot)
+      for iter94 in self.records:
+        iter94.write(oprot)
       oprot.writeListEnd()
       oprot.writeFieldEnd()
     oprot.writeFieldStop()
@@ -638,11 +638,11 @@ class boltProcessRecords_result:
       if fid == 0:
         if ftype == TType.LIST:
           self.success = []
-          (_etype91, _size88) = iprot.readListBegin()
-          for _i92 in xrange(_size88):
-            _elem93 = ComputationTx()
-            _elem93.read(iprot)
-            self.success.append(_elem93)
+          (_etype98, _size95) = iprot.readListBegin()
+          for _i99 in xrange(_size95):
+            _elem100 = ComputationTx()
+            _elem100.read(iprot)
+            self.success.append(_elem100)
           iprot.readListEnd()
         else:
           iprot.skip(ftype)
@@ -665,8 +665,8 @@ class boltProcessRecords_result:
     if self.success is not None:
       oprot.writeFieldBegin('success', TType.LIST, 0)
       oprot.writeListBegin(TType.STRUCT, len(self.success))
-      for iter94 in self.success:
-        iter94.write(oprot)
+      for iter101 in self.success:
+        iter101.write(oprot)
       oprot.writeListEnd()
       oprot.writeFieldEnd()
     if self.e is not None:

@@ -129,11 +129,11 @@ class dispatchRecords_args:
       if fid == 1:
         if ftype == TType.LIST:
           self.records = []
-          (_etype98, _size95) = iprot.readListBegin()
-          for _i99 in xrange(_size95):
-            _elem100 = Record()
-            _elem100.read(iprot)
-            self.records.append(_elem100)
+          (_etype105, _size102) = iprot.readListBegin()
+          for _i106 in xrange(_size102):
+            _elem107 = Record()
+            _elem107.read(iprot)
+            self.records.append(_elem107)
           iprot.readListEnd()
         else:
           iprot.skip(ftype)
@@ -150,8 +150,8 @@ class dispatchRecords_args:
     if self.records is not None:
       oprot.writeFieldBegin('records', TType.LIST, 1)
       oprot.writeListBegin(TType.STRUCT, len(self.records))
-      for iter101 in self.records:
-        iter101.write(oprot)
+      for iter108 in self.records:
+        iter108.write(oprot)
       oprot.writeListEnd()
       oprot.writeFieldEnd()
     oprot.writeFieldStop()

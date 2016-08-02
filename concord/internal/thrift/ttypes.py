@@ -494,7 +494,6 @@ class ExecutorTaskInfoHelper:
    - scheduler
    - proxy
    - client
-   - router
    - execName
    - folder
    - computationAliasName
@@ -502,6 +501,7 @@ class ExecutorTaskInfoHelper:
    - environmentExtra
    - dockerContainer
    - retries
+   - router
   """
 
   thrift_spec = (
@@ -522,14 +522,13 @@ class ExecutorTaskInfoHelper:
     (14, TType.STRUCT, 'router', (Endpoint, Endpoint.thrift_spec), None, ), # 14
   )
 
-  def __init__(self, frameworkLoggingLevel=thrift_spec[1][4], user=None, frameworkVModule=None, scheduler=None, proxy=None, client=None, router=None, execName=None, folder=None, computationAliasName=None, clientArguments=None, environmentExtra=None, dockerContainer=None, retries=thrift_spec[13][4],):
+  def __init__(self, frameworkLoggingLevel=thrift_spec[1][4], user=None, frameworkVModule=None, scheduler=None, proxy=None, client=None, execName=None, folder=None, computationAliasName=None, clientArguments=None, environmentExtra=None, dockerContainer=None, retries=thrift_spec[13][4], router=None,):
     self.frameworkLoggingLevel = frameworkLoggingLevel
     self.user = user
     self.frameworkVModule = frameworkVModule
     self.scheduler = scheduler
     self.proxy = proxy
     self.client = client
-    self.router = router
     self.execName = execName
     self.folder = folder
     self.computationAliasName = computationAliasName
@@ -537,6 +536,7 @@ class ExecutorTaskInfoHelper:
     self.environmentExtra = environmentExtra
     self.dockerContainer = dockerContainer
     self.retries = retries
+    self.router = router
 
   def read(self, iprot):
     if iprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None and fastbinary is not None:
@@ -578,12 +578,6 @@ class ExecutorTaskInfoHelper:
         if ftype == TType.STRUCT:
           self.client = Endpoint()
           self.client.read(iprot)
-        else:
-          iprot.skip(ftype)
-      elif fid == 14:
-        if ftype == TType.STRUCT:
-          self.router = Endpoint()
-          self.router.read(iprot)
         else:
           iprot.skip(ftype)
       elif fid == 7:
@@ -629,6 +623,12 @@ class ExecutorTaskInfoHelper:
       elif fid == 13:
         if ftype == TType.I32:
           self.retries = iprot.readI32();
+        else:
+          iprot.skip(ftype)
+      elif fid == 14:
+        if ftype == TType.STRUCT:
+          self.router = Endpoint()
+          self.router.read(iprot)
         else:
           iprot.skip(ftype)
       else:
@@ -718,7 +718,6 @@ class ExecutorTaskInfoHelper:
     value = (value * 31) ^ hash(self.scheduler)
     value = (value * 31) ^ hash(self.proxy)
     value = (value * 31) ^ hash(self.client)
-    value = (value * 31) ^ hash(self.router)
     value = (value * 31) ^ hash(self.execName)
     value = (value * 31) ^ hash(self.folder)
     value = (value * 31) ^ hash(self.computationAliasName)
@@ -726,6 +725,7 @@ class ExecutorTaskInfoHelper:
     value = (value * 31) ^ hash(self.environmentExtra)
     value = (value * 31) ^ hash(self.dockerContainer)
     value = (value * 31) ^ hash(self.retries)
+    value = (value * 31) ^ hash(self.router)
     return value
 
   def __repr__(self):
@@ -1678,6 +1678,7 @@ class BoltComputationRequest:
    - forceUpdateBinary
    - slug
    - forcePullContainer
+   - executorArgs
   """
 
   thrift_spec = (
@@ -1691,9 +1692,10 @@ class BoltComputationRequest:
     (7, TType.BOOL, 'forceUpdateBinary', None, None, ), # 7
     (8, TType.STRING, 'slug', None, None, ), # 8
     (9, TType.BOOL, 'forcePullContainer', None, True, ), # 9
+    (10, TType.LIST, 'executorArgs', (TType.STRING,None), None, ), # 10
   )
 
-  def __init__(self, name=None, instances=thrift_spec[2][4], cpus=thrift_spec[3][4], mem=thrift_spec[4][4], disk=thrift_spec[5][4], taskHelper=None, forceUpdateBinary=None, slug=None, forcePullContainer=thrift_spec[9][4],):
+  def __init__(self, name=None, instances=thrift_spec[2][4], cpus=thrift_spec[3][4], mem=thrift_spec[4][4], disk=thrift_spec[5][4], taskHelper=None, forceUpdateBinary=None, slug=None, forcePullContainer=thrift_spec[9][4], executorArgs=None,):
     self.name = name
     self.instances = instances
     self.cpus = cpus
@@ -1703,6 +1705,7 @@ class BoltComputationRequest:
     self.forceUpdateBinary = forceUpdateBinary
     self.slug = slug
     self.forcePullContainer = forcePullContainer
+    self.executorArgs = executorArgs
 
   def read(self, iprot):
     if iprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None and fastbinary is not None:
@@ -1759,6 +1762,16 @@ class BoltComputationRequest:
           self.forcePullContainer = iprot.readBool();
         else:
           iprot.skip(ftype)
+      elif fid == 10:
+        if ftype == TType.LIST:
+          self.executorArgs = []
+          (_etype84, _size81) = iprot.readListBegin()
+          for _i85 in xrange(_size81):
+            _elem86 = iprot.readString().decode('utf-8')
+            self.executorArgs.append(_elem86)
+          iprot.readListEnd()
+        else:
+          iprot.skip(ftype)
       else:
         iprot.skip(ftype)
       iprot.readFieldEnd()
@@ -1805,6 +1818,13 @@ class BoltComputationRequest:
       oprot.writeFieldBegin('forcePullContainer', TType.BOOL, 9)
       oprot.writeBool(self.forcePullContainer)
       oprot.writeFieldEnd()
+    if self.executorArgs is not None:
+      oprot.writeFieldBegin('executorArgs', TType.LIST, 10)
+      oprot.writeListBegin(TType.STRING, len(self.executorArgs))
+      for iter87 in self.executorArgs:
+        oprot.writeString(iter87.encode('utf-8'))
+      oprot.writeListEnd()
+      oprot.writeFieldEnd()
     oprot.writeFieldStop()
     oprot.writeStructEnd()
 
@@ -1823,6 +1843,7 @@ class BoltComputationRequest:
     value = (value * 31) ^ hash(self.forceUpdateBinary)
     value = (value * 31) ^ hash(self.slug)
     value = (value * 31) ^ hash(self.forcePullContainer)
+    value = (value * 31) ^ hash(self.executorArgs)
     return value
 
   def __repr__(self):
