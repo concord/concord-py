@@ -70,7 +70,7 @@ class Metadata:
         if len(self.istreams) == 0 and len(self.ostreams) == 0:
             raise Exception("Both input and output streams are empty")
 
-def new_computation_context():
+def new_computation_context(tcp_proxy):
     """Creates a context object wrapping a transaction.
     :returns: (ComputationContext, ComputationTx)
     """
@@ -107,6 +107,12 @@ def new_computation_context():
             :type time: int.
             """
             transaction.timers[key] = time
+
+        def set_state(self, key, value):
+            tcp_proxy.setState(key, value)
+
+        def get_state(self, key):
+            return tcp_proxy.getState(key)
 
     return (ComputationContext(), transaction)
 
@@ -159,11 +165,9 @@ class ComputationServiceWrapper(ComputationService.Iface):
     def __init__(self, handler):
         self.handler = handler
         self.proxy_client = None
-        handler.get_state = self.get_state
-        handler.set_state = self.set_state
 
     def init(self):
-        ctx, transaction = new_computation_context()
+        ctx, transaction = new_computation_context(self.proxy())
         try:
             self.handler.init(ctx)
         except Exception as e:
@@ -183,7 +187,7 @@ class ComputationServiceWrapper(ComputationService.Iface):
 
     def boltProcessRecords(self, records):
         def txfn(record):
-            ctx, transaction = new_computation_context()
+            ctx, transaction = new_computation_context(self.proxy())
             try:
                 self.handler.process_record(ctx, record)
             except Exception as e:
@@ -194,7 +198,7 @@ class ComputationServiceWrapper(ComputationService.Iface):
         return map(txfn, records)
 
     def boltProcessTimer(self, key, time):
-        ctx, transaction = new_computation_context()
+        ctx, transaction = new_computation_context(self.proxy())
         try:
             self.handler.process_timer(ctx, key, time)
         except Exception as e:
@@ -231,14 +235,6 @@ class ComputationServiceWrapper(ComputationService.Iface):
         metadata.ostreams = md.ostreams
         ccord_logger.info("Got metadata: %s", metadata)
         return metadata
-
-    def set_state(self, key, value):
-        proxy = self.proxy()
-        proxy.setState(key, value)
-
-    def get_state(self, key):
-        proxy = self.proxy()
-        return proxy.getState(key)
 
     def proxy(self):
         if not self.proxy_client:
