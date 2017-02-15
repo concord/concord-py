@@ -750,6 +750,7 @@ class PhysicalComputationMetadata:
    - taskHelper
    - needsReconciliation
    - killed
+   - gpus
   """
 
   thrift_spec = (
@@ -757,14 +758,15 @@ class PhysicalComputationMetadata:
     (1, TType.STRING, 'taskId', None, None, ), # 1
     (2, TType.STRING, 'slaveId', None, None, ), # 2
     (3, TType.DOUBLE, 'cpus', None, None, ), # 3
-    (4, TType.I32, 'mem', None, None, ), # 4
-    (5, TType.I32, 'disk', None, None, ), # 5
+    (4, TType.DOUBLE, 'mem', None, None, ), # 4
+    (5, TType.DOUBLE, 'disk', None, None, ), # 5
     (6, TType.STRUCT, 'taskHelper', (ExecutorTaskInfoHelper, ExecutorTaskInfoHelper.thrift_spec), None, ), # 6
     (7, TType.BOOL, 'needsReconciliation', None, None, ), # 7
     (8, TType.BOOL, 'killed', None, None, ), # 8
+    (9, TType.DOUBLE, 'gpus', None, None, ), # 9
   )
 
-  def __init__(self, taskId=None, slaveId=None, cpus=None, mem=None, disk=None, taskHelper=None, needsReconciliation=None, killed=None,):
+  def __init__(self, taskId=None, slaveId=None, cpus=None, mem=None, disk=None, taskHelper=None, needsReconciliation=None, killed=None, gpus=None,):
     self.taskId = taskId
     self.slaveId = slaveId
     self.cpus = cpus
@@ -773,6 +775,7 @@ class PhysicalComputationMetadata:
     self.taskHelper = taskHelper
     self.needsReconciliation = needsReconciliation
     self.killed = killed
+    self.gpus = gpus
 
   def read(self, iprot):
     if iprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None and fastbinary is not None:
@@ -799,13 +802,13 @@ class PhysicalComputationMetadata:
         else:
           iprot.skip(ftype)
       elif fid == 4:
-        if ftype == TType.I32:
-          self.mem = iprot.readI32();
+        if ftype == TType.DOUBLE:
+          self.mem = iprot.readDouble();
         else:
           iprot.skip(ftype)
       elif fid == 5:
-        if ftype == TType.I32:
-          self.disk = iprot.readI32();
+        if ftype == TType.DOUBLE:
+          self.disk = iprot.readDouble();
         else:
           iprot.skip(ftype)
       elif fid == 6:
@@ -822,6 +825,11 @@ class PhysicalComputationMetadata:
       elif fid == 8:
         if ftype == TType.BOOL:
           self.killed = iprot.readBool();
+        else:
+          iprot.skip(ftype)
+      elif fid == 9:
+        if ftype == TType.DOUBLE:
+          self.gpus = iprot.readDouble();
         else:
           iprot.skip(ftype)
       else:
@@ -847,12 +855,12 @@ class PhysicalComputationMetadata:
       oprot.writeDouble(self.cpus)
       oprot.writeFieldEnd()
     if self.mem is not None:
-      oprot.writeFieldBegin('mem', TType.I32, 4)
-      oprot.writeI32(self.mem)
+      oprot.writeFieldBegin('mem', TType.DOUBLE, 4)
+      oprot.writeDouble(self.mem)
       oprot.writeFieldEnd()
     if self.disk is not None:
-      oprot.writeFieldBegin('disk', TType.I32, 5)
-      oprot.writeI32(self.disk)
+      oprot.writeFieldBegin('disk', TType.DOUBLE, 5)
+      oprot.writeDouble(self.disk)
       oprot.writeFieldEnd()
     if self.taskHelper is not None:
       oprot.writeFieldBegin('taskHelper', TType.STRUCT, 6)
@@ -865,6 +873,10 @@ class PhysicalComputationMetadata:
     if self.killed is not None:
       oprot.writeFieldBegin('killed', TType.BOOL, 8)
       oprot.writeBool(self.killed)
+      oprot.writeFieldEnd()
+    if self.gpus is not None:
+      oprot.writeFieldBegin('gpus', TType.DOUBLE, 9)
+      oprot.writeDouble(self.gpus)
       oprot.writeFieldEnd()
     oprot.writeFieldStop()
     oprot.writeStructEnd()
@@ -883,6 +895,7 @@ class PhysicalComputationMetadata:
     value = (value * 31) ^ hash(self.taskHelper)
     value = (value * 31) ^ hash(self.needsReconciliation)
     value = (value * 31) ^ hash(self.killed)
+    value = (value * 31) ^ hash(self.gpus)
     return value
 
   def __repr__(self):
@@ -1679,6 +1692,7 @@ class BoltComputationRequest:
    - slug
    - forcePullContainer
    - executorArgs
+   - gpus
   """
 
   thrift_spec = (
@@ -1686,16 +1700,17 @@ class BoltComputationRequest:
     (1, TType.STRING, 'name', None, None, ), # 1
     (2, TType.I64, 'instances', None, 1, ), # 2
     (3, TType.DOUBLE, 'cpus', None, 0.1, ), # 3
-    (4, TType.I64, 'mem', None, 2048, ), # 4
-    (5, TType.I64, 'disk', None, 10240, ), # 5
+    (4, TType.DOUBLE, 'mem', None, 2048, ), # 4
+    (5, TType.DOUBLE, 'disk', None, 10240, ), # 5
     (6, TType.STRUCT, 'taskHelper', (ExecutorTaskInfoHelper, ExecutorTaskInfoHelper.thrift_spec), None, ), # 6
     (7, TType.BOOL, 'forceUpdateBinary', None, None, ), # 7
     (8, TType.STRING, 'slug', None, None, ), # 8
     (9, TType.BOOL, 'forcePullContainer', None, True, ), # 9
     (10, TType.LIST, 'executorArgs', (TType.STRING,None), None, ), # 10
+    (11, TType.DOUBLE, 'gpus', None, 0, ), # 11
   )
 
-  def __init__(self, name=None, instances=thrift_spec[2][4], cpus=thrift_spec[3][4], mem=thrift_spec[4][4], disk=thrift_spec[5][4], taskHelper=None, forceUpdateBinary=None, slug=None, forcePullContainer=thrift_spec[9][4], executorArgs=None,):
+  def __init__(self, name=None, instances=thrift_spec[2][4], cpus=thrift_spec[3][4], mem=thrift_spec[4][4], disk=thrift_spec[5][4], taskHelper=None, forceUpdateBinary=None, slug=None, forcePullContainer=thrift_spec[9][4], executorArgs=None, gpus=thrift_spec[11][4],):
     self.name = name
     self.instances = instances
     self.cpus = cpus
@@ -1706,6 +1721,7 @@ class BoltComputationRequest:
     self.slug = slug
     self.forcePullContainer = forcePullContainer
     self.executorArgs = executorArgs
+    self.gpus = gpus
 
   def read(self, iprot):
     if iprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None and fastbinary is not None:
@@ -1732,13 +1748,13 @@ class BoltComputationRequest:
         else:
           iprot.skip(ftype)
       elif fid == 4:
-        if ftype == TType.I64:
-          self.mem = iprot.readI64();
+        if ftype == TType.DOUBLE:
+          self.mem = iprot.readDouble();
         else:
           iprot.skip(ftype)
       elif fid == 5:
-        if ftype == TType.I64:
-          self.disk = iprot.readI64();
+        if ftype == TType.DOUBLE:
+          self.disk = iprot.readDouble();
         else:
           iprot.skip(ftype)
       elif fid == 6:
@@ -1772,6 +1788,11 @@ class BoltComputationRequest:
           iprot.readListEnd()
         else:
           iprot.skip(ftype)
+      elif fid == 11:
+        if ftype == TType.DOUBLE:
+          self.gpus = iprot.readDouble();
+        else:
+          iprot.skip(ftype)
       else:
         iprot.skip(ftype)
       iprot.readFieldEnd()
@@ -1795,12 +1816,12 @@ class BoltComputationRequest:
       oprot.writeDouble(self.cpus)
       oprot.writeFieldEnd()
     if self.mem is not None:
-      oprot.writeFieldBegin('mem', TType.I64, 4)
-      oprot.writeI64(self.mem)
+      oprot.writeFieldBegin('mem', TType.DOUBLE, 4)
+      oprot.writeDouble(self.mem)
       oprot.writeFieldEnd()
     if self.disk is not None:
-      oprot.writeFieldBegin('disk', TType.I64, 5)
-      oprot.writeI64(self.disk)
+      oprot.writeFieldBegin('disk', TType.DOUBLE, 5)
+      oprot.writeDouble(self.disk)
       oprot.writeFieldEnd()
     if self.taskHelper is not None:
       oprot.writeFieldBegin('taskHelper', TType.STRUCT, 6)
@@ -1825,6 +1846,10 @@ class BoltComputationRequest:
         oprot.writeString(iter87.encode('utf-8'))
       oprot.writeListEnd()
       oprot.writeFieldEnd()
+    if self.gpus is not None:
+      oprot.writeFieldBegin('gpus', TType.DOUBLE, 11)
+      oprot.writeDouble(self.gpus)
+      oprot.writeFieldEnd()
     oprot.writeFieldStop()
     oprot.writeStructEnd()
 
@@ -1844,6 +1869,7 @@ class BoltComputationRequest:
     value = (value * 31) ^ hash(self.slug)
     value = (value * 31) ^ hash(self.forcePullContainer)
     value = (value * 31) ^ hash(self.executorArgs)
+    value = (value * 31) ^ hash(self.gpus)
     return value
 
   def __repr__(self):
